@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <template class="id_extonan_HypersonicMainWindow" parent="GtkApplicationWindow">
+        <property name="title" translatable="yes">Example Application</property>
+        <property name="default-width">600</property>
+        <property name="default-height">400</property>
+        <child type="titlebar">
+            <object class="GtkHeaderBar" id="header">
+                <child type="title">
+                    <object class="GtkStackSwitcher" id="tabs">
+                        <property name="stack">fileStacks</property>
+                    </object>
+                </child>
+                <child type="end">
+                    <object class="GtkMenuButton" id="hamburger">
+                        <property name="direction">none</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkBox" id="content_box">
+                <property name="orientation">1</property>
+                <child>
+                    <object class="GtkStack" id="fileStacks"/>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>
