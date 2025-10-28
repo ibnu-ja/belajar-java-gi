@@ -34,6 +34,7 @@ public class HypersonicSettings extends Window {
             "slide-left-right"
     );
 
+    @SuppressWarnings("unused")
     @InstanceInit
     public void init() {
         settings = new Settings("id.extonan.hypersonic");

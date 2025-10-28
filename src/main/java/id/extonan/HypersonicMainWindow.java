@@ -30,6 +30,7 @@ public class HypersonicMainWindow extends ApplicationWindow {
     }
 
     @InstanceInit
+    @SuppressWarnings("unused")
     public void init() {
         var builder = GtkBuilder.fromResource("/id/extonan/hypersonic/menu.ui");
         var menu = (MenuModel) builder.getObject("settings");
