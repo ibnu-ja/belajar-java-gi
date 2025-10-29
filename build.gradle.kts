@@ -1,5 +1,7 @@
 @file:Suppress("SpellCheckingInspection")
 
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     id("application")
     id("io.freefair.lombok") version "9.0.0"
@@ -24,28 +26,83 @@ java {
     }
 }
 
+val msys64Dir = project.findProperty("msys64.dir") as? String ?: "C:/msys64/mingw64" //defaults to MINGW64
+val msys64BinDir = "$msys64Dir/bin"
+
+val commonJvmArgs = mutableListOf(
+    "--enable-native-access=ALL-UNNAMED",
+)
+
+if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    commonJvmArgs.add("-Djava.library.path=$msys64BinDir")
+}
 
 tasks.named<JavaExec>("run") {
-    jvmArgs(
-        "--enable-native-access=ALL-UNNAMED",
-    )
     args(
         "Hypersonic",
         "src/main/java/id/extonan/Hypersonic.java",
         "src/main/java/id/extonan/HypersonicApp.java",
         "src/main/java/id/extonan/HypersonicMainWindow.java"
     )
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        environment("PATH", "$msys64BinDir;${System.getenv("PATH")}")
+        val buildDataDir = layout.buildDirectory.get().asFile.absolutePath.replace('\\', '/')
+        val msysDataDir = msys64Dir.replace('\\', '/')
+        val pathSeparator = ";"
+        val defaultDataDirs = "$msysDataDir/share${pathSeparator}/usr/local/share${pathSeparator}/usr/share"
+        val existingDataDirs = System.getenv("XDG_DATA_DIRS") ?: defaultDataDirs
+        environment("XDG_DATA_DIRS", "$buildDataDir$pathSeparator$existingDataDirs")
+    }
 }
 
 tasks.register<Exec>("compileResources") {
     group = "build"
     description = "Compile GResource XML into a binary resource file."
     workingDir = file("src/main/resources")
-    commandLine = listOf("glib-compile-resources", "hypersonicapp.gresource.xml")
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        val executablePath = "$msys64BinDir/glib-compile-resources.exe"
+        commandLine = listOf(executablePath, "hypersonicapp.gresource.xml")
+    } else {
+        commandLine = listOf("glib-compile-resources", "hypersonicapp.gresource.xml")
+    }
 }
 
-tasks.named("classes") {
-    dependsOn("compileResources")
+if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    tasks.register<Copy>("copySchema") {
+        group = "build"
+        description = "Copy GSettings schema to build directory for compilation."
+        from("src/main/resources") {
+            include("*.gschema.xml")
+        }
+        into(layout.buildDirectory.dir("glib-2.0/schemas"))
+    }
+
+    tasks.register<Exec>("compileSchemas") {
+        group = "build"
+        description = "Compile GSettings schemas."
+
+        dependsOn("copySchema")
+
+        val schemaDirProvider = layout.buildDirectory.dir("glib-2.0/schemas")
+        val schemaDir = schemaDirProvider.get().asFile
+
+        inputs.dir(schemaDirProvider)
+        outputs.file(schemaDirProvider.map { it.file("gschemas.compiled") })
+
+        val executablePath = "$msys64BinDir/glib-compile-schemas.exe"
+        commandLine = listOf(executablePath, schemaDir.absolutePath)
+    }
+
+    tasks.named("classes") {
+        dependsOn("compileResources")
+        dependsOn("compileSchemas")
+    }
+} else {
+    tasks.named("classes") {
+        dependsOn("compileResources")
+    }
 }
 
 dependencies {
@@ -69,8 +126,20 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs(commonJvmArgs)
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        environment("PATH", "$msys64BinDir;${System.getenv("PATH")}")
+        val buildDataDir = layout.buildDirectory.get().asFile.absolutePath.replace('\\', '/')
+        val msysDataDir = msys64Dir.replace('\\', '/')
+        val pathSeparator = ";"
+        val defaultDataDirs = "$msysDataDir/share${pathSeparator}/usr/local/share${pathSeparator}/usr/share"
+        val existingDataDirs = System.getenv("XDG_DATA_DIRS") ?: defaultDataDirs
+        environment("XDG_DATA_DIRS", "$buildDataDir$pathSeparator$existingDataDirs")
+    }
 }
 
-
-
-application.mainClass.set("id.extonan.Hypersonic")
+application {
+    applicationDefaultJvmArgs = commonJvmArgs
+    mainClass.set("id.extonan.Hypersonic")
+}
