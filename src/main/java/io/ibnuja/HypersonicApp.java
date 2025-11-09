@@ -5,7 +5,7 @@ import org.gnome.gio.File;
 import org.gnome.gio.SimpleAction;
 import org.gnome.glib.List;
 import org.gnome.glib.Variant;
-import org.gnome.gtk.Application;
+import org.gnome.adw.Application;
 import org.gnome.gtk.Window;
 
 @SuppressWarnings("java:S110")

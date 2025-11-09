@@ -114,6 +114,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations")
     implementation("com.fasterxml.jackson.core:jackson-core")
     implementation("io.github.jwharm.javagi:gtk:${javaGiVersion}")
+    implementation("io.github.jwharm.javagi:adw:${javaGiVersion}")
 
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl")
     runtimeOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
