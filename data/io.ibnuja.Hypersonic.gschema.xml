@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist>
-    <schema path="/id/extonan/hypersonic/" id="id.extonan.hypersonic">
+<schemalist gettext-domain="hypersonic">
+	<schema id="io.ibnuja.Hypersonic" path="/io/ibnuja/Hypersonic/">
         <key name="font" type="s">
             <default>'Monospace 12'</default>
             <summary>Font</summary>
@@ -16,5 +16,5 @@
             <summary>Transition</summary>
             <description>The transition to use when switching tabs.</description>
         </key>
-    </schema>
+	</schema>
 </schemalist>

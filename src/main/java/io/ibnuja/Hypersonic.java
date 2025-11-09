@@ -1,4 +1,4 @@
-package id.extonan;
+package io.ibnuja;
 
 import io.github.jwharm.javagi.base.GErrorException;
 import org.gnome.gio.Resource;

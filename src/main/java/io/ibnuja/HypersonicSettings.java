@@ -1,4 +1,4 @@
-package id.extonan;
+package io.ibnuja;
 
 import io.github.jwharm.javagi.gobject.annotations.InstanceInit;
 import io.github.jwharm.javagi.gtk.annotations.GtkChild;
@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-@GtkTemplate(ui = "/id/extonan/hypersonic/settings.ui")
+@GtkTemplate(ui = "/io/ibnuja/hypersonic/settings.ui")
 @SuppressWarnings({"java:S110", "java:S1192"})
 @EqualsAndHashCode(callSuper = true)
 public class HypersonicSettings extends Window {
@@ -38,7 +38,7 @@ public class HypersonicSettings extends Window {
     @SuppressWarnings("unused")
     @InstanceInit
     public void init() {
-        settings = new Settings("id.extonan.hypersonic");
+        settings = new Settings("io.ibnuja.Hypersonic");
         var fontString = settings.getString("font");
         var fontDesc = FontDescription.fromString(fontString);
         font.setFontDesc(fontDesc);

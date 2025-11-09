@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=hypersonic
+Exec=hypersonic
+Icon=io.ibnuja.Hypersonic
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true

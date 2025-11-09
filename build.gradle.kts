@@ -7,7 +7,7 @@ plugins {
     id("io.freefair.lombok") version "9.0.0"
 }
 
-group = "id.extonan"
+group = "io.ibnuja"
 version = "1.0-SNAPSHOT"
 
 val slf4jVersion = "2.0.17"
@@ -40,9 +40,9 @@ if (Os.isFamily(Os.FAMILY_WINDOWS)) {
 tasks.named<JavaExec>("run") {
     args(
         "Hypersonic",
-        "src/main/java/id/extonan/Hypersonic.java",
-        "src/main/java/id/extonan/HypersonicApp.java",
-        "src/main/java/id/extonan/HypersonicMainWindow.java"
+        "src/main/java/io/ibnuja/Hypersonic.java",
+        "src/main/java/io/ibnuja/HypersonicApp.java",
+        "src/main/java/io/ibnuja/HypersonicMainWindow.java"
     )
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -141,5 +141,5 @@ tasks.test {
 
 application {
     applicationDefaultJvmArgs = commonJvmArgs
-    mainClass.set("id.extonan.Hypersonic")
+    mainClass.set("io.ibnuja.Hypersonic")
 }

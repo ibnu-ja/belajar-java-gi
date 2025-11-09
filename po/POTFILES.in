@@ -1,0 +1,8 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/io.ibnuja.Hypersonic.desktop.in
+data/io.ibnuja.Hypersonic.metainfo.xml.in
+data/io.ibnuja.Hypersonic.gschema.xml
+src/main/resources/menu.ui
+src/main/resources/settings.ui
+src/main/resources/window.ui

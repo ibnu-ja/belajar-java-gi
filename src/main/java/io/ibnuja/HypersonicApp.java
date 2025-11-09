@@ -1,4 +1,4 @@
-package id.extonan;
+package io.ibnuja;
 
 import org.gnome.gio.ApplicationFlags;
 import org.gnome.gio.File;
@@ -58,7 +58,7 @@ public class HypersonicApp extends Application {
     }
 
     public HypersonicApp() {
-        setApplicationId("id.extonan.hypersonic");
+        setApplicationId("io.ibnuja.Hypersonic");
         setFlags(ApplicationFlags.HANDLES_OPEN);
     }
 

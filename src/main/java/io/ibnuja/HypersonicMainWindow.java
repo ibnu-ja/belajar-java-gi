@@ -1,4 +1,4 @@
-package id.extonan;
+package io.ibnuja;
 
 import io.github.jwharm.javagi.base.GErrorException;
 import io.github.jwharm.javagi.base.Out;
@@ -12,7 +12,7 @@ import org.gnome.gio.SettingsBindFlags;
 import org.gnome.gtk.*;
 import org.gnome.gio.Settings;
 
-@GtkTemplate(ui="/id/extonan/hypersonic/window.ui")
+@GtkTemplate(ui= "/io/ibnuja/hypersonic/window.ui")
 @SuppressWarnings({"java:S110", "java:S112"})
 @EqualsAndHashCode(callSuper = true)
 public class HypersonicMainWindow extends ApplicationWindow {
@@ -32,11 +32,11 @@ public class HypersonicMainWindow extends ApplicationWindow {
     @InstanceInit
     @SuppressWarnings("unused")
     public void init() {
-        var builder = GtkBuilder.fromResource("/id/extonan/hypersonic/menu.ui");
+        var builder = GtkBuilder.fromResource("/io/ibnuja/hypersonic/menu.ui");
         var menu = (MenuModel) builder.getObject("settings");
         hamburger.setMenuModel(menu);
 
-        settings = new Settings("id.extonan.hypersonic");
+        settings = new Settings("io.ibnuja.Hypersonic");
         settings.bind("transition", fileStacks, "transition-type", SettingsBindFlags.DEFAULT);
     }
 
