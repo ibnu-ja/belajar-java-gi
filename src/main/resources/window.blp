@@ -1,0 +1,110 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $io_ibnuja_HypersonicMainWindow: Adw.ApplicationWindow {
+  title: _("Example Application");
+  default-width: 600;
+  default-height: 400;
+
+  Adw.Breakpoint {
+    condition ("max-width: 400sp")
+
+    setters {
+      split_view.collapsed: true;
+    }
+  }
+
+  content: Adw.NavigationSplitView split_view {
+    sidebar: Adw.NavigationPage {
+      title: _("Home");
+      tag: "sidebar";
+
+      child: Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+          show-title: true;
+        }
+
+        content: ScrolledWindow {
+          hscrollbar-policy: never;
+
+          child: ListBox {
+            selection-mode: browse;
+
+            styles [
+              "navigation-sidebar",
+            ]
+
+            ListBoxRow {
+              activatable: true;
+
+              Box {
+                spacing: 12;
+
+                Image {
+                  icon-name: "document-open-recent-symbolic";
+                  pixel-size: 16;
+                }
+
+                Label {
+                  label: "Recent";
+                  xalign: 0;
+                  hexpand: true;
+                  ellipsize: end;
+                }
+              }
+            }
+
+            ListBoxRow {
+              activatable: true;
+
+              Box {
+                spacing: 12;
+
+                Image {
+                  icon-name: "starred-symbolic";
+                  pixel-size: 16;
+                }
+
+                Label {
+                  label: "Favorites";
+                  xalign: 0;
+                  hexpand: true;
+                }
+              }
+            }
+          };
+        };
+      };
+    };
+
+    content: Adw.NavigationPage {
+      title: _("Content");
+      tag: "content";
+
+      child: Adw.ToolbarView toolbar_view {
+        [top]
+        Adw.HeaderBar header {
+          [title]
+          Adw.ViewSwitcher view_switcher {
+            stack: view_stack;
+            policy: wide;
+          }
+
+          [end]
+          MenuButton hamburger {
+            direction: none;
+          }
+        }
+
+        content: Adw.ToastOverlay toast_overlay {
+          child: Box content_box {
+            orientation: vertical;
+
+            Adw.ViewStack view_stack {}
+          };
+        };
+      };
+    };
+  };
+}

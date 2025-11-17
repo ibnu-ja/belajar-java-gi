@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
     <gresource prefix="/io/ibnuja/hypersonic">
-        <file preprocess="xml-stripblanks">window.ui</file>
-        <file preprocess="xml-stripblanks">menu.ui</file>
-        <file preprocess="xml-stripblanks">settings.ui</file>
+        <file alias="window.ui" preprocess="xml-stripblanks">blueprint-compiler/window.ui</file>
+        <file alias="menu.ui" preprocess="xml-stripblanks">blueprint-compiler/menu.ui</file>
+        <file alias="settings.ui" preprocess="xml-stripblanks">blueprint-compiler/settings.ui</file>
     </gresource>
 </gresources>

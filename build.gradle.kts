@@ -1,7 +1,5 @@
 @file:Suppress("SpellCheckingInspection")
 
-import org.apache.tools.ant.taskdefs.condition.Os
-
 plugins {
     id("application")
     id("io.freefair.lombok") version "9.0.0"
@@ -26,16 +24,9 @@ java {
     }
 }
 
-val msys64Dir = project.findProperty("msys64.dir") as? String ?: "C:/msys64/mingw64" //defaults to MINGW64
-val msys64BinDir = "$msys64Dir/bin"
-
 val commonJvmArgs = mutableListOf(
     "--enable-native-access=ALL-UNNAMED",
 )
-
-if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-    commonJvmArgs.add("-Djava.library.path=$msys64BinDir")
-}
 
 tasks.named<JavaExec>("run") {
     args(
@@ -44,65 +35,45 @@ tasks.named<JavaExec>("run") {
         "src/main/java/io/ibnuja/HypersonicApp.java",
         "src/main/java/io/ibnuja/HypersonicMainWindow.java"
     )
+}
 
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        environment("PATH", "$msys64BinDir;${System.getenv("PATH")}")
-        val buildDataDir = layout.buildDirectory.get().asFile.absolutePath.replace('\\', '/')
-        val msysDataDir = msys64Dir.replace('\\', '/')
-        val pathSeparator = ";"
-        val defaultDataDirs = "$msysDataDir/share${pathSeparator}/usr/local/share${pathSeparator}/usr/share"
-        val existingDataDirs = System.getenv("XDG_DATA_DIRS") ?: defaultDataDirs
-        environment("XDG_DATA_DIRS", "$buildDataDir$pathSeparator$existingDataDirs")
+tasks.register("createBlueprintDir") {
+    group = "build"
+    description = "Creates the directory for compiled blueprint files."
+    doLast {
+        file("src/main/resources/blueprint-compiler").mkdirs()
     }
+}
+
+tasks.register<Exec>("compileBlueprints") {
+    group = "build"
+    description = "Compile Blueprint files into GtkBuilder XML."
+    workingDir = file("src/main/resources")
+
+    // This task depends on the directory creation task
+    dependsOn("createBlueprintDir")
+
+    val inputFiles = listOf(
+        "window.blp",
+        "settings.blp",
+        "menu.blp"
+    )
+
+    commandLine(
+        "blueprint-compiler",
+        "batch-compile",
+        "blueprint-compiler",
+        ".",
+        *inputFiles.toTypedArray()
+    )
 }
 
 tasks.register<Exec>("compileResources") {
     group = "build"
     description = "Compile GResource XML into a binary resource file."
     workingDir = file("src/main/resources")
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        val executablePath = "$msys64BinDir/glib-compile-resources.exe"
-        commandLine = listOf(executablePath, "hypersonicapp.gresource.xml")
-    } else {
-        commandLine = listOf("glib-compile-resources", "hypersonicapp.gresource.xml")
-    }
-}
-
-if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-    tasks.register<Copy>("copySchema") {
-        group = "build"
-        description = "Copy GSettings schema to build directory for compilation."
-        from("src/main/resources") {
-            include("*.gschema.xml")
-        }
-        into(layout.buildDirectory.dir("glib-2.0/schemas"))
-    }
-
-    tasks.register<Exec>("compileSchemas") {
-        group = "build"
-        description = "Compile GSettings schemas."
-
-        dependsOn("copySchema")
-
-        val schemaDirProvider = layout.buildDirectory.dir("glib-2.0/schemas")
-        val schemaDir = schemaDirProvider.get().asFile
-
-        inputs.dir(schemaDirProvider)
-        outputs.file(schemaDirProvider.map { it.file("gschemas.compiled") })
-
-        val executablePath = "$msys64BinDir/glib-compile-schemas.exe"
-        commandLine = listOf(executablePath, schemaDir.absolutePath)
-    }
-
-    tasks.named("classes") {
-        dependsOn("compileResources")
-        dependsOn("compileSchemas")
-    }
-} else {
-    tasks.named("classes") {
-        dependsOn("compileResources")
-    }
+    dependsOn("compileBlueprints")
+    commandLine = listOf("glib-compile-resources", "hypersonicapp.gresource.xml")
 }
 
 dependencies {
@@ -128,16 +99,6 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     jvmArgs(commonJvmArgs)
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        environment("PATH", "$msys64BinDir;${System.getenv("PATH")}")
-        val buildDataDir = layout.buildDirectory.get().asFile.absolutePath.replace('\\', '/')
-        val msysDataDir = msys64Dir.replace('\\', '/')
-        val pathSeparator = ";"
-        val defaultDataDirs = "$msysDataDir/share${pathSeparator}/usr/local/share${pathSeparator}/usr/share"
-        val existingDataDirs = System.getenv("XDG_DATA_DIRS") ?: defaultDataDirs
-        environment("XDG_DATA_DIRS", "$buildDataDir$pathSeparator$existingDataDirs")
-    }
 }
 
 application {

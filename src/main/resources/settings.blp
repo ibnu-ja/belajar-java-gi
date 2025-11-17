@@ -1,0 +1,40 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $io_ibnuja_HypersonicSettings: Adw.PreferencesDialog {
+  title: _("Preferences");
+  modal: "true";
+
+  Adw.PreferencesPage page_general {
+    title: _("General");
+
+    Adw.PreferencesGroup group_font {
+      title: _("Font");
+
+      Adw.ActionRow font_row {
+        title: _("Font");
+
+        [suffix]
+        FontDialogButton font {
+          dialog: FontDialog {};
+        }
+      }
+    }
+
+    Adw.PreferencesGroup group_transition {
+      title: _("Transition");
+
+      Adw.ComboRow transition {
+        title: _("Transition");
+
+        model: StringList {
+          strings [
+            _("None"),
+            _("Fade"),
+            _("Slide"),
+          ]
+        };
+      }
+    }
+  }
+}
