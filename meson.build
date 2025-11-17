@@ -10,35 +10,15 @@ i18n = import('i18n')
 gnome = import('gnome')
 
 jar_name = meson.project_name() + '-' + meson.project_version() + '.jar'
-jar_path = join_paths(
-  meson.project_source_root(),
-  'build/libs',
-  jar_name
-)
+jar_path = join_paths(meson.project_source_root(), 'build/libs', jar_name)
 app_datadir = get_option('datadir') / meson.project_name()
 
 config_h = configuration_data()
-config_h.set_quoted('PACKAGE_VERSION', meson.project_version ())
+config_h.set_quoted('PACKAGE_VERSION', meson.project_version())
 config_h.set_quoted('GETTEXT_PACKAGE', 'hypersonic')
 config_h.set_quoted('LOCALEDIR', get_option('prefix') / get_option('localedir'))
+config_h.set_quoted('DATADIR', get_option('prefix') / app_datadir)
 configure_file(output: 'config.h', configuration: config_h)
-
-add_project_arguments('-DGETTEXT_PACKAGE="' + meson.project_name () + '"', language: 'c')
-
-gradle_build = custom_target(
-  'gradle-build',
-  command: [
-    'sh', '-c',
-    'cd @0@ && @1@ build'.format(
-      meson.project_source_root(),
-      meson.project_source_root() / 'gradlew'
-    )
-  ],
-  output: jar_name,
-  build_by_default: true,
-  console: true,
-  capture: false
-)
 
 install_data(
   jar_path,
@@ -61,7 +41,7 @@ subdir('data')
 subdir('po')
 
 gnome.post_install(
-     glib_compile_schemas: true,
-    gtk_update_icon_cache: true,
+  glib_compile_schemas: true,
+  gtk_update_icon_cache: true,
   update_desktop_database: true,
 )
