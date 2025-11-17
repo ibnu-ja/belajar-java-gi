@@ -1,77 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-    <template class="io_ibnuja_HypersonicSettings" parent="GtkWindow">
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="libadwaita" version="1.0"/>
+    <template class="io_ibnuja_HypersonicSettings" parent="AdwPreferencesDialog">
         <property name="title" translatable="yes">Preferences</property>
-        <property name="resizable">false</property>
         <property name="modal">true</property>
+        <child>
+            <object class="AdwPreferencesPage" id="page_general">
+                <property name="title" translatable="yes">General</property>
+                <child>
+                    <object class="AdwPreferencesGroup" id="group_font">
+                        <property name="title" translatable="yes">Font</property>
 
-        <property name="titlebar">
-            <object class="GtkHeaderBar">
-                <property name="show-title-buttons">true</property>
-            </object>
-        </property>
-
-        <property name="child">
-            <object class="GtkGrid" id="grid">
-                <property name="margin-start">12</property>
-                <property name="margin-end">12</property>
-                <property name="margin-top">12</property>
-                <property name="margin-bottom">12</property>
-                <property name="row-spacing">12</property>
-                <property name="column-spacing">12</property>
-                <child>
-                    <object class="GtkLabel" id="fontlabel">
-                        <property name="label">_Font:</property>
-                        <property name="use-underline">true</property>
-                        <property name="mnemonic-widget">font</property>
-                        <property name="halign">end</property>
-                        <layout>
-                            <property name="column">0</property>
-                            <property name="row">0</property>
-                        </layout>
-                    </object>
-                </child>
-                <child>
-                    <object class="GtkFontDialogButton" id="font">
-                        <property name="dialog">
-                            <object class="GtkFontDialog"/>
-                        </property>
-                        <layout>
-                            <property name="column">1</property>
-                            <property name="row">0</property>
-                        </layout>
-                    </object>
-                </child>
-                <child>
-                    <object class="GtkLabel" id="transitionlabel">
-                        <property name="label">_Transition:</property>
-                        <property name="use-underline">true</property>
-                        <property name="mnemonic-widget">transition</property>
-                        <property name="halign">end</property>
-                        <layout>
-                            <property name="column">0</property>
-                            <property name="row">1</property>
-                        </layout>
-                    </object>
-                </child>
-                <child>
-                    <object class="GtkDropDown" id="transition">
-                        <property name="model">
-                            <object class="GtkStringList">
-                                <items>
-                                    <item translatable="yes">None</item>
-                                    <item translatable="yes">Fade</item>
-                                    <item translatable="yes">Slide</item>
-                                </items>
+                        <child>
+                            <object class="AdwActionRow" id="font_row">
+                                <property name="title" translatable="yes">Font</property>
+                                <child type="suffix">
+                                    <object class="GtkFontDialogButton" id="font">
+                                        <property name="dialog">
+                                            <object class="GtkFontDialog"/>
+                                        </property>
+                                    </object>
+                                </child>
                             </object>
-                        </property>
-                        <layout>
-                            <property name="column">1</property>
-                            <property name="row">1</property>
-                        </layout>
+                        </child>
+
+                    </object>
+                </child>
+
+                <child>
+                    <object class="AdwPreferencesGroup" id="group_transition">
+                        <property name="title" translatable="yes">Transition</property>
+
+                        <child>
+                            <object class="AdwComboRow" id="transition">
+                                <property name="title" translatable="yes">Transition</property>
+                                <property name="model">
+                                    <object class="GtkStringList">
+                                        <items>
+                                            <item translatable="yes">None</item>
+                                            <item translatable="yes">Fade</item>
+                                            <item translatable="yes">Slide</item>
+                                        </items>
+                                    </object>
+                                </property>
+                            </object>
+                        </child>
                     </object>
                 </child>
             </object>
-        </property>
+        </child>
     </template>
 </interface>

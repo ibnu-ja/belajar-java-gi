@@ -25,22 +25,21 @@ public class HypersonicApp extends Application {
             win = (HypersonicMainWindow) windows.getFirst();
         else
             win = new HypersonicMainWindow(this);
-
         for (File file : files)
             win.open(file);
-
         win.present();
     }
 
     public void preferencesActivated(Variant parameter) {
         HypersonicMainWindow win = (HypersonicMainWindow) getActiveWindow();
-        HypersonicSettings settings = new HypersonicSettings(win);
-        settings.present();
+        HypersonicSettings settings = new HypersonicSettings();
+        settings.present(win);
     }
 
     public void quitActivated(Variant parameter) {
         super.quit();
     }
+
     @Override
     public void startup() {
         super.startup();
@@ -61,6 +60,4 @@ public class HypersonicApp extends Application {
         setApplicationId("io.ibnuja.Hypersonic");
         setFlags(ApplicationFlags.HANDLES_OPEN);
     }
-
-
 }

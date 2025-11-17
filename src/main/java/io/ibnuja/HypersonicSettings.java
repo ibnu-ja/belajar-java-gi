@@ -5,10 +5,14 @@ import io.github.jwharm.javagi.gtk.annotations.GtkChild;
 import io.github.jwharm.javagi.gtk.annotations.GtkTemplate;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.gnome.adw.ComboRow;
+import org.gnome.adw.PreferencesDialog;
 import org.gnome.gio.Settings;
 import org.gnome.gobject.GObject;
 import org.gnome.gobject.ParamSpec;
-import org.gnome.gtk.*;
+import org.gnome.gtk.CustomFilter;
+import org.gnome.gtk.CustomFilterFunc;
+import org.gnome.gtk.FontDialogButton;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.FontFace;
 
@@ -19,13 +23,13 @@ import java.util.List;
 @GtkTemplate(ui = "/io/ibnuja/hypersonic/settings.ui")
 @SuppressWarnings({"java:S110", "java:S1192"})
 @EqualsAndHashCode(callSuper = true)
-public class HypersonicSettings extends Window {
+public class HypersonicSettings extends PreferencesDialog {
 
-    @GtkChild
-    public FontDialogButton font;
+    @GtkChild(name = "font")
+    FontDialogButton font;
 
-    @GtkChild
-    public DropDown transition;
+    @GtkChild(name = "transition")
+    ComboRow transition;
 
     Settings settings;
 
@@ -35,47 +39,47 @@ public class HypersonicSettings extends Window {
             "slide-left-right"
     );
 
-    @SuppressWarnings("unused")
-    @InstanceInit
-    public void init() {
+    public HypersonicSettings() {
+        super();
         settings = new Settings("io.ibnuja.Hypersonic");
-        var fontString = settings.getString("font");
-        var fontDesc = FontDescription.fromString(fontString);
+    }
+
+    @InstanceInit
+    @SuppressWarnings("unused")
+    public void init() {
+        String fontString = settings.getString("font");
+        FontDescription fontDesc = FontDescription.fromString(fontString);
         font.setFontDesc(fontDesc);
-        NotifyCallback onFontDescChange = (ParamSpec paramSpec) -> {
-            if (!paramSpec.getName().equals("font-desc")) return;
-            var newFontDesc = font.getFontDesc();
-            var newFontString = newFontDesc.toString();
-            if (!newFontString.equals(settings.getString("font"))) {
-                settings.setString("font", newFontString);
-            }
-        };
-
-        font.onNotify("font-desc", onFontDescChange);
-
-        var transitionString = settings.getString("transition");
-        int initialIndex = TRANSITION_IDS.indexOf(transitionString);
-        if (initialIndex == -1) initialIndex = 0; // Default to "none"
-        transition.setSelected(initialIndex);
-
-        NotifyCallback onTransitionChange = (ParamSpec paramSpec) -> {
-            if (!paramSpec.getName().equals("selected")) return;
-
-            int newIndex = transition.getSelected();
-            if (newIndex >= 0 && newIndex < TRANSITION_IDS.size()) {
-                var newTransitionString = TRANSITION_IDS.get(newIndex);
-                if (!newTransitionString.equals(settings.getString("transition"))) {
-                    settings.setString("transition", newTransitionString);
+        font.onNotify(
+                "font-desc", (ParamSpec ps) -> {
+                    if (!"font-desc".equals(ps.getName())) return;
+                    String newFontString = font.getFontDesc().toString();
+                    if (!newFontString.equals(settings.getString("font"))) {
+                        settings.setString("font", newFontString);
+                    }
                 }
-            }
-        };
+        );
 
-        transition.onNotify("selected", onTransitionChange);
+        String transitionString = settings.getString("transition");
+        int initialIndex = TRANSITION_IDS.indexOf(transitionString);
+        if (initialIndex == -1) initialIndex = 0;
+        transition.setSelected(initialIndex);
+        transition.onNotify(
+                "selected", (ParamSpec ps) -> {
+                    if (!"selected".equals(ps.getName())) return;
+                    int sel = transition.getSelected();
+                    if (sel >= 0 && sel < TRANSITION_IDS.size()) {
+                        String newVal = TRANSITION_IDS.get(sel);
+                        if (!newVal.equals(settings.getString("transition"))) {
+                            settings.setString("transition", newVal);
+                        }
+                    }
+                }
+        );
 
         var fontDialog = font.getDialog();
         CustomFilterFunc monospaceFilterFunc = (GObject item) -> {
             if (item instanceof FontFace face) {
-                // Return true only if the font is monospace
                 return face.getFamily().isMonospace();
             }
             log.warn("{} is not a FontFace", item.getClass().getName());
@@ -83,10 +87,7 @@ public class HypersonicSettings extends Window {
         };
         var monospaceFilter = new CustomFilter(monospaceFilterFunc);
         fontDialog.setFilter(monospaceFilter);
-    }
 
-    public HypersonicSettings(HypersonicMainWindow win) {
-        setTransientFor(win);
+        setSearchEnabled(true);
     }
 }
-
