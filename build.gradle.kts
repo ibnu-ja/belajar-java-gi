@@ -32,9 +32,6 @@ tasks.named<JavaExec>("run") {
     dependsOn("compileResources")
     args(
         "Hypersonic",
-        "src/main/java/io/ibnuja/Hypersonic.java",
-        "src/main/java/io/ibnuja/HypersonicApp.java",
-        "src/main/java/io/ibnuja/HypersonicMainWindow.java"
     )
 }
 

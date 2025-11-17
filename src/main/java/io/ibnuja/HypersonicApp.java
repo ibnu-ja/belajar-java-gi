@@ -25,8 +25,6 @@ public class HypersonicApp extends Application {
             win = (HypersonicMainWindow) windows.getFirst();
         else
             win = new HypersonicMainWindow(this);
-        for (File file : files)
-            win.open(file);
         win.present();
     }
 
