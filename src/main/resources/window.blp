@@ -15,68 +15,7 @@ template $io_ibnuja_HypersonicMainWindow: Adw.ApplicationWindow {
   }
 
   content: Adw.NavigationSplitView split_view {
-    sidebar: Adw.NavigationPage {
-      title: _("Home");
-      tag: "sidebar";
-
-      child: Adw.ToolbarView {
-        [top]
-        Adw.HeaderBar {
-          show-title: true;
-        }
-
-        content: ScrolledWindow {
-          hscrollbar-policy: never;
-
-          child: ListBox {
-            selection-mode: browse;
-
-            styles [
-              "navigation-sidebar",
-            ]
-
-            ListBoxRow {
-              activatable: true;
-
-              Box {
-                spacing: 12;
-
-                Image {
-                  icon-name: "document-open-recent-symbolic";
-                  pixel-size: 16;
-                }
-
-                Label {
-                  label: "Recent";
-                  xalign: 0;
-                  hexpand: true;
-                  ellipsize: end;
-                }
-              }
-            }
-
-            ListBoxRow {
-              activatable: true;
-
-              Box {
-                spacing: 12;
-
-                Image {
-                  icon-name: "starred-symbolic";
-                  pixel-size: 16;
-                }
-
-                Label {
-                  label: "Favorites";
-                  xalign: 0;
-                  hexpand: true;
-                }
-              }
-            }
-          };
-        };
-      };
-    };
+    sidebar: Adw.NavigationPage sidebar {};
 
     content: Adw.NavigationPage {
       title: _("Content");

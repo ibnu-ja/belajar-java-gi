@@ -54,6 +54,7 @@ tasks.register<Exec>("compileBlueprints") {
     val inputFiles = listOf(
         "window.blp",
         "settings.blp",
+        "sidebar.blp",
         "menu.blp"
     )
 

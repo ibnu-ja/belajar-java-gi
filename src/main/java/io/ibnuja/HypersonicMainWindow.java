@@ -4,9 +4,7 @@ import io.github.jwharm.javagi.gobject.annotations.InstanceInit;
 import io.github.jwharm.javagi.gtk.annotations.GtkChild;
 import io.github.jwharm.javagi.gtk.annotations.GtkTemplate;
 import lombok.EqualsAndHashCode;
-import org.gnome.adw.ApplicationWindow;
-import org.gnome.adw.Toast;
-import org.gnome.adw.ToastOverlay;
+import org.gnome.adw.*;
 import org.gnome.gio.Settings;
 import org.gnome.gtk.GtkBuilder;
 import org.gnome.gtk.MenuButton;
@@ -22,6 +20,9 @@ public class HypersonicMainWindow extends ApplicationWindow {
     @GtkChild(name = "toast_overlay")
     public ToastOverlay toastOverlay;
 
+    @GtkChild(name = "split_view")
+    public NavigationSplitView navigationSplitView;
+
     protected Settings settings;
 
     public HypersonicMainWindow(HypersonicApp app) {
@@ -34,6 +35,7 @@ public class HypersonicMainWindow extends ApplicationWindow {
         var builder = GtkBuilder.fromResource("/io/ibnuja/hypersonic/menu.ui");
         var menu = (org.gnome.gio.MenuModel) builder.getObject("settings");
         hamburger.setMenuModel(menu);
+        navigationSplitView.setSidebar(new HypersonicSidebar());
 
         settings = new Settings("io.ibnuja.Hypersonic");
     }
