@@ -29,6 +29,7 @@ val commonJvmArgs = mutableListOf(
 )
 
 tasks.named<JavaExec>("run") {
+    dependsOn("compileResources")
     args(
         "Hypersonic",
         "src/main/java/io/ibnuja/Hypersonic.java",
