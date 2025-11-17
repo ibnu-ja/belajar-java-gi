@@ -1,4 +1,4 @@
-package io.ibnuja;
+package io.ibnuja.hypersonic.ui.components.sidebar;
 
 import io.github.jwharm.javagi.gtk.annotations.GtkTemplate;
 import lombok.EqualsAndHashCode;
@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.gnome.adw.NavigationPage;
 
 @Slf4j
-@GtkTemplate(ui = "/io/ibnuja/hypersonic/sidebar.ui")
+@GtkTemplate(ui = "/io/ibnuja/hypersonic/components/sidebar/sidebar.ui", name = "Sidebar")
 @SuppressWarnings({"java:S110", "java:S1192"})
 @EqualsAndHashCode(callSuper = true)
-public class HypersonicSidebar extends NavigationPage {
+public class Sidebar extends NavigationPage {
 
-    public HypersonicSidebar() {
+    public Sidebar() {
         super();
     }
 

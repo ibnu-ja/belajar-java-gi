@@ -39,7 +39,8 @@ tasks.register("createBlueprintDir") {
     group = "build"
     description = "Creates the directory for compiled blueprint files."
     doLast {
-        file("src/main/resources/blueprint-compiler").mkdirs()
+        file("src/main/resources/blueprint-compiler/components/settings").mkdirs()
+        file("src/main/resources/blueprint-compiler/components/sidebar").mkdirs()
     }
 }
 
@@ -47,15 +48,12 @@ tasks.register<Exec>("compileBlueprints") {
     group = "build"
     description = "Compile Blueprint files into GtkBuilder XML."
     workingDir = file("src/main/resources")
-
-    // This task depends on the directory creation task
     dependsOn("createBlueprintDir")
 
     val inputFiles = listOf(
         "window.blp",
-        "settings.blp",
-        "sidebar.blp",
-        "menu.blp"
+        "components/settings/settings.blp",
+        "components/sidebar/sidebar.blp"
     )
 
     commandLine(
@@ -102,5 +100,5 @@ tasks.test {
 
 application {
     applicationDefaultJvmArgs = commonJvmArgs
-    mainClass.set("io.ibnuja.Hypersonic")
+    mainClass.set("io.ibnuja.hypersonic.Hypersonic")
 }

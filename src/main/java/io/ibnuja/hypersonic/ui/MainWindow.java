@@ -1,21 +1,21 @@
-package io.ibnuja;
+package io.ibnuja.hypersonic.ui;
 
 import io.github.jwharm.javagi.gobject.annotations.InstanceInit;
 import io.github.jwharm.javagi.gtk.annotations.GtkChild;
 import io.github.jwharm.javagi.gtk.annotations.GtkTemplate;
+import io.ibnuja.hypersonic.Hypersonic;
+import io.ibnuja.hypersonic.ui.components.sidebar.Sidebar;
 import lombok.EqualsAndHashCode;
-import org.gnome.adw.*;
+import org.gnome.adw.ApplicationWindow;
+import org.gnome.adw.NavigationSplitView;
+import org.gnome.adw.Toast;
+import org.gnome.adw.ToastOverlay;
 import org.gnome.gio.Settings;
-import org.gnome.gtk.GtkBuilder;
-import org.gnome.gtk.MenuButton;
 
-@GtkTemplate(ui = "/io/ibnuja/hypersonic/window.ui")
+@GtkTemplate(ui = "/io/ibnuja/hypersonic/window.ui", name = "MainWindow")
 @SuppressWarnings({"java:S110", "java:S112"})
 @EqualsAndHashCode(callSuper = true)
-public class HypersonicMainWindow extends ApplicationWindow {
-
-    @GtkChild
-    public MenuButton hamburger;
+public class MainWindow extends ApplicationWindow {
 
     @GtkChild(name = "toast_overlay")
     public ToastOverlay toastOverlay;
@@ -25,17 +25,14 @@ public class HypersonicMainWindow extends ApplicationWindow {
 
     protected Settings settings;
 
-    public HypersonicMainWindow(HypersonicApp app) {
+    public MainWindow(Hypersonic.Application app) {
         setApplication(app);
     }
 
     @InstanceInit
     @SuppressWarnings("unused")
     public void init() {
-        var builder = GtkBuilder.fromResource("/io/ibnuja/hypersonic/menu.ui");
-        var menu = (org.gnome.gio.MenuModel) builder.getObject("settings");
-        hamburger.setMenuModel(menu);
-        navigationSplitView.setSidebar(new HypersonicSidebar());
+        navigationSplitView.setSidebar(new Sidebar());
 
         settings = new Settings("io.ibnuja.Hypersonic");
     }

@@ -1,7 +1,7 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $io_ibnuja_HypersonicMainWindow: Adw.ApplicationWindow {
+template $MainWindow: Adw.ApplicationWindow {
   title: _("Example Application");
   default-width: 600;
   default-height: 400;
@@ -27,6 +27,7 @@ template $io_ibnuja_HypersonicMainWindow: Adw.ApplicationWindow {
           [end]
           MenuButton hamburger {
             direction: none;
+            menu-model: settingWindow;
           }
         }
         content: Adw.ToastOverlay toast_overlay {
@@ -38,4 +39,19 @@ template $io_ibnuja_HypersonicMainWindow: Adw.ApplicationWindow {
       };
     };
   };
+}
+
+menu settingWindow {
+  section {
+    item {
+      label: _("_Preferences");
+      action: "app.preferences";
+    }
+  }
+  section {
+    item {
+      label: _("_Quit");
+      action: "app.quit";
+    }
+  }
 }
