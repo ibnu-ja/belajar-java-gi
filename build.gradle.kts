@@ -20,7 +20,7 @@ val slf4jVersion = "2.0.17"
 val log4jVersion = "2.25.2"
 val junitVersion = "5.10.0"
 val jacksonBomVersion = "2.20.0"
-val javaGiVersion = "0.12.2"
+val javaGiVersion = "0.13.0"
 
 repositories {
     mavenCentral()
@@ -131,8 +131,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.core:jackson-annotations")
     implementation("com.fasterxml.jackson.core:jackson-core")
-    implementation("io.github.jwharm.javagi:gtk:${javaGiVersion}")
-    implementation("io.github.jwharm.javagi:adw:${javaGiVersion}")
+    implementation("org.java-gi:gtk:${javaGiVersion}")
+    implementation("org.java-gi:adw:${javaGiVersion}")
 
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl")
     runtimeOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
