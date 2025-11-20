@@ -11,6 +11,7 @@ plugins {
     id("io.freefair.lombok") version "9.0.0"
     id("io.github.wasabithumb.gradle-meson-plugin") version "0.1.0"
     id("com.gradleup.shadow") version "9.2.2"
+    kotlin("jvm")
 }
 
 group = "io.ibnuja"
@@ -21,9 +22,12 @@ val log4jVersion = "2.25.2"
 val junitVersion = "5.10.0"
 val jacksonBomVersion = "2.20.0"
 val javaGiVersion = "0.13.0"
+val ktorVersion = "3.3.2"
+val subsonicApiVersion = "1.1.1"
 
 repositories {
     mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/eap")
 }
 
 val localPrefix = "${System.getProperty("user.home")}/.local"
@@ -135,6 +139,8 @@ dependencies {
     implementation("org.java-gi:adw:${javaGiVersion}")
     implementation("org.java-gi:gdkpixbuf:${javaGiVersion}")
     implementation("org.java-gi:gstreamer:${javaGiVersion}")
+    implementation("ru.stersh:subsonic-api:${subsonicApiVersion}")
+    implementation("io.ktor:ktor-client-apache5:${ktorVersion}")
 
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl")
     runtimeOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
@@ -143,6 +149,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.test {
