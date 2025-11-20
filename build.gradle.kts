@@ -1,10 +1,17 @@
 @file:Suppress("SpellCheckingInspection")
 
-import org.apache.tools.ant.taskdefs.condition.Os
+import io.github.wasabithumb.gmp.MesonPluginExtension
+import io.github.wasabithumb.gmp.option.MesonBuildType
+import io.github.wasabithumb.gmp.option.MesonOptimizationLevel
+import io.github.wasabithumb.gmp.task.MesonSetupTask
+
 
 plugins {
     id("application")
     id("io.freefair.lombok") version "9.0.0"
+    id("io.github.wasabithumb.gradle-meson-plugin") version "0.1.0"
+    id("com.gradleup.shadow") version "9.2.2"
+    kotlin("jvm")
 }
 
 group = "io.ibnuja"
@@ -14,10 +21,23 @@ val slf4jVersion = "2.0.17"
 val log4jVersion = "2.25.2"
 val junitVersion = "5.10.0"
 val jacksonBomVersion = "2.20.0"
-val javaGiVersion = "0.12.2"
+val javaGiVersion = "0.13.0"
+val ktorVersion = "3.3.2"
+val subsonicApiVersion = "1.1.1"
 
 repositories {
     mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/eap")
+}
+
+val localPrefix = "${System.getProperty("user.home")}/.local"
+
+meson {
+    configuration("linux-amd64") {
+        buildType = MesonBuildType.RELEASE
+        optimization = MesonOptimizationLevel.O3
+        options["prefix"] = localPrefix
+    }
 }
 
 java {
@@ -26,83 +46,85 @@ java {
     }
 }
 
-val msys64Dir = project.findProperty("msys64.dir") as? String ?: "C:/msys64/mingw64" //defaults to MINGW64
-val msys64BinDir = "$msys64Dir/bin"
+tasks.named<MesonSetupTask>("mesonSetup") {
+    dependsOn("shadowJar")
+}
 
 val commonJvmArgs = mutableListOf(
     "--enable-native-access=ALL-UNNAMED",
 )
+val mesonExt = extensions.getByType<MesonPluginExtension>()
 
-if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-    commonJvmArgs.add("-Djava.library.path=$msys64BinDir")
+val mesonInstall = tasks.register("mesonInstall") {
+    group = "build"
+    description = "Installs all enabled Meson configurations"
+    dependsOn("mesonSetup", "shadowJar")
+}
+
+mesonExt.configurations.forEach { (configName, config) ->
+    if (config.enabled) {
+        val taskName = "mesonInstall${configName.replaceFirstChar { it.uppercase() }}"
+
+        tasks.register<Exec>(taskName) {
+            group = "build"
+            description = "Installs the $configName configuration"
+            dependsOn("mesonCompile")
+
+            val buildDir = layout.buildDirectory.dir("meson/$configName").get().asFile
+            workingDir = buildDir
+
+            commandLine("meson", "install")
+
+            onlyIf { buildDir.exists() }
+        }
+
+        mesonInstall.configure {
+            dependsOn(taskName)
+        }
+    }
+}
+
+tasks.named("shadowJar") {
+    dependsOn("compileResources")
 }
 
 tasks.named<JavaExec>("run") {
+    dependsOn("compileResources")
     args(
         "Hypersonic",
-        "src/main/java/io/ibnuja/Hypersonic.java",
-        "src/main/java/io/ibnuja/HypersonicApp.java",
-        "src/main/java/io/ibnuja/HypersonicMainWindow.java"
+    )
+}
+
+tasks.register<Exec>("compileBlueprints") {
+    group = "build"
+    description = "Compile Blueprint files into GtkBuilder XML."
+    workingDir = file("src/main/resources")
+
+    val inputFiles = listOf(
+        "window.blp",
+        "components/settings/settings.blp",
+        "components/sidebar/sidebar.blp",
+        "components/playback/playback_info.blp",
+        "components/playback/playback_controls.blp",
+        "components/playback/playback_widget.blp",
+        "components/selection/selection_toolbar.blp",
     )
 
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        environment("PATH", "$msys64BinDir;${System.getenv("PATH")}")
-        val buildDataDir = layout.buildDirectory.get().asFile.absolutePath.replace('\\', '/')
-        val msysDataDir = msys64Dir.replace('\\', '/')
-        val pathSeparator = ";"
-        val defaultDataDirs = "$msysDataDir/share${pathSeparator}/usr/local/share${pathSeparator}/usr/share"
-        val existingDataDirs = System.getenv("XDG_DATA_DIRS") ?: defaultDataDirs
-        environment("XDG_DATA_DIRS", "$buildDataDir$pathSeparator$existingDataDirs")
-    }
+    commandLine(
+        "blueprint-compiler",
+        "batch-compile",
+        "blueprint-compiler",
+        ".",
+        *inputFiles.toTypedArray()
+    )
 }
 
 tasks.register<Exec>("compileResources") {
     group = "build"
     description = "Compile GResource XML into a binary resource file."
     workingDir = file("src/main/resources")
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        val executablePath = "$msys64BinDir/glib-compile-resources.exe"
-        commandLine = listOf(executablePath, "hypersonicapp.gresource.xml")
-    } else {
-        commandLine = listOf("glib-compile-resources", "hypersonicapp.gresource.xml")
-    }
-}
-
-if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-    tasks.register<Copy>("copySchema") {
-        group = "build"
-        description = "Copy GSettings schema to build directory for compilation."
-        from("src/main/resources") {
-            include("*.gschema.xml")
-        }
-        into(layout.buildDirectory.dir("glib-2.0/schemas"))
-    }
-
-    tasks.register<Exec>("compileSchemas") {
-        group = "build"
-        description = "Compile GSettings schemas."
-
-        dependsOn("copySchema")
-
-        val schemaDirProvider = layout.buildDirectory.dir("glib-2.0/schemas")
-        val schemaDir = schemaDirProvider.get().asFile
-
-        inputs.dir(schemaDirProvider)
-        outputs.file(schemaDirProvider.map { it.file("gschemas.compiled") })
-
-        val executablePath = "$msys64BinDir/glib-compile-schemas.exe"
-        commandLine = listOf(executablePath, schemaDir.absolutePath)
-    }
-
-    tasks.named("classes") {
-        dependsOn("compileResources")
-        dependsOn("compileSchemas")
-    }
-} else {
-    tasks.named("classes") {
-        dependsOn("compileResources")
-    }
+    dependsOn("compileBlueprints")
+    commandLine = listOf("glib-compile-resources", "hypersonicapp.gresource.xml")
 }
 
 dependencies {
@@ -113,8 +135,12 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.core:jackson-annotations")
     implementation("com.fasterxml.jackson.core:jackson-core")
-    implementation("io.github.jwharm.javagi:gtk:${javaGiVersion}")
-    implementation("io.github.jwharm.javagi:adw:${javaGiVersion}")
+    implementation("org.java-gi:gtk:${javaGiVersion}")
+    implementation("org.java-gi:adw:${javaGiVersion}")
+    implementation("org.java-gi:gdkpixbuf:${javaGiVersion}")
+    implementation("org.java-gi:gstreamer:${javaGiVersion}")
+    implementation("ru.stersh:subsonic-api:${subsonicApiVersion}")
+    implementation("io.ktor:ktor-client-apache5:${ktorVersion}")
 
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl")
     runtimeOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
@@ -123,24 +149,15 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.test {
     useJUnitPlatform()
     jvmArgs(commonJvmArgs)
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        environment("PATH", "$msys64BinDir;${System.getenv("PATH")}")
-        val buildDataDir = layout.buildDirectory.get().asFile.absolutePath.replace('\\', '/')
-        val msysDataDir = msys64Dir.replace('\\', '/')
-        val pathSeparator = ";"
-        val defaultDataDirs = "$msysDataDir/share${pathSeparator}/usr/local/share${pathSeparator}/usr/share"
-        val existingDataDirs = System.getenv("XDG_DATA_DIRS") ?: defaultDataDirs
-        environment("XDG_DATA_DIRS", "$buildDataDir$pathSeparator$existingDataDirs")
-    }
 }
 
 application {
     applicationDefaultJvmArgs = commonJvmArgs
-    mainClass.set("io.ibnuja.Hypersonic")
+    mainClass.set("io.ibnuja.hypersonic.Hypersonic")
 }

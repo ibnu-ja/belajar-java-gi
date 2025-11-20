@@ -1,13 +1,12 @@
-package io.ibnuja;
+package io.ibnuja.hypersonic.ui.components.settings;
 
-import io.github.jwharm.javagi.gobject.annotations.InstanceInit;
-import io.github.jwharm.javagi.gtk.annotations.GtkChild;
-import io.github.jwharm.javagi.gtk.annotations.GtkTemplate;
+import org.javagi.gobject.annotations.InstanceInit;
+import org.javagi.gtk.annotations.GtkChild;
+import org.javagi.gtk.annotations.GtkTemplate;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.adw.ComboRow;
 import org.gnome.adw.PreferencesDialog;
-import org.gnome.gio.Settings;
 import org.gnome.gobject.GObject;
 import org.gnome.gobject.ParamSpec;
 import org.gnome.gtk.CustomFilter;
@@ -20,10 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-@GtkTemplate(ui = "/io/ibnuja/hypersonic/settings.ui")
+@GtkTemplate(ui = "/io/ibnuja/hypersonic/components/settings/settings.ui", name = "Settings")
 @SuppressWarnings({"java:S110", "java:S1192"})
 @EqualsAndHashCode(callSuper = true)
-public class HypersonicSettings extends PreferencesDialog {
+public class SettingWindow extends PreferencesDialog {
 
     @GtkChild(name = "font")
     FontDialogButton font;
@@ -31,7 +30,7 @@ public class HypersonicSettings extends PreferencesDialog {
     @GtkChild(name = "transition")
     ComboRow transition;
 
-    Settings settings;
+    org.gnome.gio.Settings settings;
 
     private static final List<String> TRANSITION_IDS = Arrays.asList(
             "none",
@@ -39,9 +38,9 @@ public class HypersonicSettings extends PreferencesDialog {
             "slide-left-right"
     );
 
-    public HypersonicSettings() {
+    public SettingWindow() {
         super();
-        settings = new Settings("io.ibnuja.Hypersonic");
+        settings = new org.gnome.gio.Settings("io.ibnuja.Hypersonic");
     }
 
     @InstanceInit
