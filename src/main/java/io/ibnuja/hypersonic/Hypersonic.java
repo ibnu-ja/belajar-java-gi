@@ -24,14 +24,16 @@ import java.io.InputStream;
 import java.util.List;
 
 @Slf4j
-@SuppressWarnings("java:S1118")
+@SuppressWarnings({"java:S1118", "java:S125"})
 public class Hypersonic {
 
     static void main(String[] args) throws GErrorException {
         Gst.init(new Out<>(new String[]{}));
-        Pixbuf.getFormats().forEach(pixbufFormat -> {
-            log.debug("pixbufFormat supported: {}, {} ", pixbufFormat.getName(), pixbufFormat.getDescription());
-        });
+        Pixbuf.getFormats().forEach(pixbufFormat -> log.debug(
+                "pixbufFormat supported: {}, {} ",
+                pixbufFormat.getName(),
+                pixbufFormat.getDescription()
+        ));
 
         //create ktor http client
         // create subsonic api
