@@ -112,16 +112,16 @@ template $MainWindow: Adw.ApplicationWindow {
         };
       };
     }
-    //Overlay {
-    //  hexpand: true;
-    //  $io_ibnuja_hypersonic_ui_components_playback_PlaybackWidget playback {
-    //    hexpand: "1";
-    //  }
-    //  [overlay]
-    //  $io_ibnuja_hypersonic_ui_components_selection_SelectionToolbar selection_toolbar {
-    //    hexpand: "1";
-    //  }
-    //}
+    Overlay {
+      hexpand: true;
+      $PlaybackWidget playback {
+        hexpand: "1";
+      }
+      [overlay]
+      $SelectionToolbarWidget selection_toolbar {
+        hexpand: "1";
+      }
+    }
   }
 }
 

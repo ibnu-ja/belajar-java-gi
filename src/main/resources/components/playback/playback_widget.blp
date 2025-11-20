@@ -53,7 +53,7 @@ template $PlaybackWidget : Box {
 
       setters {
         desktop-grid.column-homogeneous: false;
-        //controls.halign: end;
+        controls.halign: end;
       }
     }
 
@@ -63,7 +63,7 @@ template $PlaybackWidget : Box {
       setters {
         volume-stack.visible-child-name: 'slider-button';
         desktop-grid.column-homogeneous: false;
-        //controls.halign: end;
+        controls.halign: end;
       }
     }
 
@@ -72,27 +72,27 @@ template $PlaybackWidget : Box {
       hexpand: true;
       column-homogeneous: true;
 
-      //$PlaybackInfoWidget now_playing {
-      //  receives-default: "1";
-      //  halign: "start";
-      //  valign: "center";
-      //  has-frame: "0";
+      $PlaybackInfoWidget now_playing {
+        receives-default: "1";
+        halign: "start";
+        valign: "center";
+        has-frame: "0";
 
-      //  layout {
-      //    column-span: "1";
-      //    column: "0";
-      //    row: "0";
-      //  }
-      //}
+        layout {
+          column-span: "1";
+          column: "0";
+          row: "0";
+        }
+      }
 
-      //$PlaybackControlsWidget controls {
-      //  halign: center;
-      //  layout {
-      //    column-span: "1";
-      //    column: "1";
-      //    row: "0";
-      //  }
-      //}
+      $PlaybackControlsWidget controls {
+        halign: center;
+        layout {
+          column-span: "1";
+          column: "1";
+          row: "0";
+        }
+      }
 
       Stack volume-stack {
         visible-child-name: "slider";

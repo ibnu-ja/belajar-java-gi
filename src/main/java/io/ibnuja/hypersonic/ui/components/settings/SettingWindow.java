@@ -1,8 +1,8 @@
 package io.ibnuja.hypersonic.ui.components.settings;
 
-import io.github.jwharm.javagi.gobject.annotations.InstanceInit;
-import io.github.jwharm.javagi.gtk.annotations.GtkChild;
-import io.github.jwharm.javagi.gtk.annotations.GtkTemplate;
+import org.javagi.gobject.annotations.InstanceInit;
+import org.javagi.gtk.annotations.GtkChild;
+import org.javagi.gtk.annotations.GtkTemplate;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.adw.ComboRow;

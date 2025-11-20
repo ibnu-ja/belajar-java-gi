@@ -1,42 +1,39 @@
 package io.ibnuja.hypersonic;
 
-import io.github.jwharm.javagi.base.GErrorException;
-import io.github.jwharm.javagi.gobject.types.Types;
 import io.ibnuja.hypersonic.ui.MainWindow;
-import io.ibnuja.hypersonic.ui.components.playback.PlaybackControls;
-import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfo;
+import io.ibnuja.hypersonic.ui.components.playback.PlaybackControlsWidget;
+import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfoWidget;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackWidget;
-import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbar;
+import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.gio.ApplicationFlags;
 import org.gnome.gio.File;
 import org.gnome.gio.Resource;
 import org.gnome.gio.SimpleAction;
-import org.gnome.glib.List;
 import org.gnome.glib.Variant;
 import org.gnome.gtk.Window;
+import org.javagi.base.GErrorException;
+import org.javagi.gtk.types.TemplateTypes;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @Slf4j
 @SuppressWarnings("java:S1118")
 public class Hypersonic {
 
-    static void main(String[] args) throws GErrorException, IOException {
+    static void main(String[] args) throws GErrorException {
         try (InputStream in = Hypersonic.class.getResourceAsStream("/hypersonicapp.gresource")) {
-            Types.register(PlaybackWidget.class);
-            Types.register(PlaybackInfo.class);
-            Types.register(PlaybackControls.class);
-            Types.register(SelectionToolbar.class);
+            TemplateTypes.register(PlaybackWidget.class);
+            TemplateTypes.register(PlaybackInfoWidget.class);
+            TemplateTypes.register(PlaybackControlsWidget.class);
+            TemplateTypes.register(SelectionToolbarWidget.class);
             Resource resource;
             if (in != null) {
                 resource = Resource.fromData(in.readAllBytes());
-            }
-            else {
+            } else {
                 resource = Resource.load("src/main/resources/hypersonicapp.gresource");
             }
             resource.resourcesRegister();

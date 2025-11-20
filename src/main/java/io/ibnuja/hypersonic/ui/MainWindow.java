@@ -1,19 +1,15 @@
 package io.ibnuja.hypersonic.ui;
 
-import io.github.jwharm.javagi.gobject.annotations.InstanceInit;
-import io.github.jwharm.javagi.gtk.annotations.GtkChild;
-import io.github.jwharm.javagi.gtk.annotations.GtkTemplate;
 import io.ibnuja.hypersonic.Hypersonic;
-import io.ibnuja.hypersonic.ui.components.sidebar.Sidebar;
 import lombok.EqualsAndHashCode;
 import org.gnome.adw.ApplicationWindow;
-import org.gnome.adw.NavigationSplitView;
 import org.gnome.adw.Toast;
-import org.gnome.adw.ToastOverlay;
 import org.gnome.gio.Settings;
+import org.javagi.gobject.annotations.InstanceInit;
+import org.javagi.gtk.annotations.GtkTemplate;
 
 @GtkTemplate(ui = "/io/ibnuja/hypersonic/window.ui", name = "MainWindow")
-@SuppressWarnings({"java:S110", "java:S112"})
+@SuppressWarnings({"java:S110", "java:S112", "java:S125"})
 @EqualsAndHashCode(callSuper = true)
 public class MainWindow extends ApplicationWindow {
 
