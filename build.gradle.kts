@@ -133,6 +133,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core")
     implementation("org.java-gi:gtk:${javaGiVersion}")
     implementation("org.java-gi:adw:${javaGiVersion}")
+    implementation("org.java-gi:gdkpixbuf:${javaGiVersion}")
+    implementation("org.java-gi:gstreamer:${javaGiVersion}")
 
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl")
     runtimeOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")

@@ -7,6 +7,8 @@ import io.ibnuja.hypersonic.ui.components.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
 import lombok.extern.slf4j.Slf4j;
+import org.freedesktop.gstreamer.gst.Gst;
+import org.gnome.gdkpixbuf.Pixbuf;
 import org.gnome.gio.ApplicationFlags;
 import org.gnome.gio.File;
 import org.gnome.gio.Resource;
@@ -14,6 +16,7 @@ import org.gnome.gio.SimpleAction;
 import org.gnome.glib.Variant;
 import org.gnome.gtk.Window;
 import org.javagi.base.GErrorException;
+import org.javagi.base.Out;
 import org.javagi.gtk.types.TemplateTypes;
 
 import java.io.IOException;
@@ -25,6 +28,19 @@ import java.util.List;
 public class Hypersonic {
 
     static void main(String[] args) throws GErrorException {
+        Gst.init(new Out<>(new String[]{}));
+        Pixbuf.getFormats().forEach(pixbufFormat -> {
+            log.debug("pixbufFormat supported: {}, {} ", pixbufFormat.getName(), pixbufFormat.getDescription());
+        });
+
+        //create ktor http client
+        // create subsonic api
+        // pick random song from api
+
+        //log.info("subsonicClient: {}", api);
+        //log.info("randomSong: {}", api.getRandomSongs(1));
+
+
         try (InputStream in = Hypersonic.class.getResourceAsStream("/hypersonicapp.gresource")) {
             TemplateTypes.register(PlaybackWidget.class);
             TemplateTypes.register(PlaybackInfoWidget.class);
@@ -41,6 +57,8 @@ public class Hypersonic {
         } catch (IOException e) {
             log.error("error loading resource:", e);
         }
+
+        // close ktor client
     }
 
     @SuppressWarnings("java:S110")
