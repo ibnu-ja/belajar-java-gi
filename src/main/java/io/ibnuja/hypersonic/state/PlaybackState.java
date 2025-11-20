@@ -1,7 +1,6 @@
 package io.ibnuja.hypersonic.state;
 
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.glib.GLib;
 
@@ -10,34 +9,65 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Slf4j
-public class PlaybackState {
+public enum PlaybackState {
+    INSTANCE;
 
-    private static final PlaybackState INSTANCE = new PlaybackState();
+    public enum Status {
+        PLAYING,
+        PAUSED
+        //STOPPED
+    }
 
     @Getter
-    private boolean isPlaying = false;
+    private Status status = Status.PAUSED;
 
-    private final List<Consumer<Boolean>> listeners = new ArrayList<>();
+    private final List<Consumer<Status>> listeners = new ArrayList<>();
 
     public static PlaybackState getInstance() {
         return INSTANCE;
     }
 
     public void togglePlay() {
-        log.info("Toggle play button pressed");
-        isPlaying = !isPlaying;
-        // call GStreamer/Subsonic API here
-        notifyListeners(); // <--- ADD THIS LINE
+        if (status == Status.PLAYING) {
+            pause();
+        } else {
+            play();
+        }
     }
 
-    public void subscribe(Consumer<Boolean> listener) {
+    public void play() {
+        log.info("Action: Play");
+        status = Status.PLAYING;
+        // TODO: Call GStreamer.play()
+        notifyListeners();
+    }
+
+    public void pause() {
+        log.info("Action: Pause");
+        status = Status.PAUSED;
+        // TODO: Call GStreamer.pause()
+        notifyListeners();
+    }
+
+    public void stop() {
+        log.info("Action: Stop");
+        //status = Status.STOPPED;
+        // TODO: Call GStreamer.stop()
+        notifyListeners();
+    }
+
+    public void subscribe(Consumer<Status> listener) {
         listeners.add(listener);
+        // set UI to initial state
+        listener.accept(status);
     }
 
     private void notifyListeners() {
-        GLib.idleAdd(GLib.PRIORITY_DEFAULT_IDLE, () -> {
-            listeners.forEach(listener -> listener.accept(isPlaying));
-            return false;
-        });
+        GLib.idleAdd(
+                GLib.PRIORITY_DEFAULT_IDLE, () -> {
+                    listeners.forEach(listener -> listener.accept(status));
+                    return false;
+                }
+        );
     }
 }

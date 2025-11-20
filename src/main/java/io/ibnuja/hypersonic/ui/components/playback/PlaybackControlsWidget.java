@@ -47,13 +47,11 @@ public class PlaybackControlsWidget extends Box {
         //    howto use
         playPauseButton.onClicked(store::togglePlay);
 
-        store.subscribe(isPlaying -> {
-            if (isPlaying) {
-                playPauseButton.setIconName("media-playback-pause-symbolic");
-                log.info("icon is changed to play");
-            } else {
+        store.subscribe(status -> {
+            if (status.equals(PlaybackState.Status.PAUSED)) {
                 playPauseButton.setIconName("media-playback-start-symbolic");
-                log.info("icon is changed to pause");
+            } else {
+                playPauseButton.setIconName("media-playback-pause-symbolic");
             }
         });
     }
