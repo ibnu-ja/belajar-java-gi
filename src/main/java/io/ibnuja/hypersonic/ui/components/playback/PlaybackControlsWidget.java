@@ -1,6 +1,9 @@
 package io.ibnuja.hypersonic.ui.components.playback;
 
-import io.ibnuja.hypersonic.state.PlaybackState;
+import io.ibnuja.hypersonic.Hypersonic;
+import io.ibnuja.hypersonic.audio.AudioPlayer;
+import io.ibnuja.hypersonic.audio.PlaybackAction;
+import io.ibnuja.hypersonic.state.PlayerState;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.gtk.Box;
@@ -18,24 +21,8 @@ import java.lang.foreign.MemorySegment;
 @GtkTemplate(name = "PlaybackControlsWidget", ui = "/io/ibnuja/hypersonic/components/playback/playback_controls.ui")
 public class PlaybackControlsWidget extends Box {
 
-    @GtkChild(name = "shuffle")
-    public ToggleButton shuffleButton;
-
-    @GtkChild(name = "prev")
-    public Button prevButton;
-
     @GtkChild(name = "play_pause")
     public Button playPauseButton;
-
-    @GtkChild(name = "next")
-    public Button nextButton;
-
-    @GtkChild(name = "repeat")
-    public ToggleButton repeatButton;
-
-    public PlaybackControlsWidget() {
-        super();
-    }
 
     public PlaybackControlsWidget(MemorySegment address) {
         super(address);
@@ -43,15 +30,16 @@ public class PlaybackControlsWidget extends Box {
 
     @InstanceInit
     public void init() {
-        PlaybackState store = PlaybackState.getInstance();
-        //    howto use
-        playPauseButton.onClicked(store::togglePlay);
+        AudioPlayer player = Hypersonic.audioPlayer;
+        PlayerState state = player.getState();
 
-        store.subscribe(status -> {
-            if (status.equals(PlaybackState.Status.PAUSED)) {
+        playPauseButton.onClicked(() -> {
+            if (state.isPlaying()) {
                 playPauseButton.setIconName("media-playback-start-symbolic");
+                player.send(new PlaybackAction.Pause());
             } else {
                 playPauseButton.setIconName("media-playback-pause-symbolic");
+                player.send(new PlaybackAction.Play());
             }
         });
     }
