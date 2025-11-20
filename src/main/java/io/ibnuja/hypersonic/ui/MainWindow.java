@@ -15,9 +15,6 @@ public class MainWindow extends ApplicationWindow {
 
     //@GtkChild(name = "toast_overlay")
     //public ToastOverlay toastOverlay;
-    //
-    //@GtkChild(name = "split_view")
-    //public NavigationSplitView navigationSplitView;
 
     protected Settings settings;
 
@@ -28,8 +25,6 @@ public class MainWindow extends ApplicationWindow {
     @InstanceInit
     @SuppressWarnings("unused")
     public void init() {
-        //navigationSplitView.setSidebar(new Sidebar());
-
         settings = new Settings("io.ibnuja.Hypersonic");
     }
 
