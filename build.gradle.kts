@@ -1,8 +1,16 @@
 @file:Suppress("SpellCheckingInspection")
 
+import io.github.wasabithumb.gmp.MesonPluginExtension
+import io.github.wasabithumb.gmp.option.MesonBuildType
+import io.github.wasabithumb.gmp.option.MesonOptimizationLevel
+import io.github.wasabithumb.gmp.task.MesonSetupTask
+
+
 plugins {
     id("application")
     id("io.freefair.lombok") version "9.0.0"
+    id("io.github.wasabithumb.gradle-meson-plugin") version "0.1.0"
+    id("com.gradleup.shadow") version "9.2.2"
 }
 
 group = "io.ibnuja"
@@ -18,15 +26,63 @@ repositories {
     mavenCentral()
 }
 
+val localPrefix = "${System.getProperty("user.home")}/.local"
+
+meson {
+    configuration("linux-amd64") {
+        buildType = MesonBuildType.RELEASE
+        optimization = MesonOptimizationLevel.O3
+        options["prefix"] = localPrefix
+    }
+}
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
+tasks.named<MesonSetupTask>("mesonSetup") {
+    dependsOn("shadowJar")
+}
+
 val commonJvmArgs = mutableListOf(
     "--enable-native-access=ALL-UNNAMED",
 )
+val mesonExt = extensions.getByType<MesonPluginExtension>()
+
+val mesonInstall = tasks.register("mesonInstall") {
+    group = "build"
+    description = "Installs all enabled Meson configurations"
+    dependsOn("mesonSetup", "shadowJar")
+}
+
+mesonExt.configurations.forEach { (configName, config) ->
+    if (config.enabled) {
+        val taskName = "mesonInstall${configName.replaceFirstChar { it.uppercase() }}"
+
+        tasks.register<Exec>(taskName) {
+            group = "build"
+            description = "Installs the $configName configuration"
+            dependsOn("mesonCompile")
+
+            val buildDir = layout.buildDirectory.dir("meson/$configName").get().asFile
+            workingDir = buildDir
+
+            commandLine("meson", "install")
+
+            onlyIf { buildDir.exists() }
+        }
+
+        mesonInstall.configure {
+            dependsOn(taskName)
+        }
+    }
+}
+
+tasks.named("shadowJar") {
+    dependsOn("compileResources")
+}
 
 tasks.named<JavaExec>("run") {
     dependsOn("compileResources")
@@ -35,25 +91,19 @@ tasks.named<JavaExec>("run") {
     )
 }
 
-tasks.register("createBlueprintDir") {
-    group = "build"
-    description = "Creates the directory for compiled blueprint files."
-    doLast {
-        file("src/main/resources/blueprint-compiler/components/settings").mkdirs()
-        file("src/main/resources/blueprint-compiler/components/sidebar").mkdirs()
-    }
-}
-
 tasks.register<Exec>("compileBlueprints") {
     group = "build"
     description = "Compile Blueprint files into GtkBuilder XML."
     workingDir = file("src/main/resources")
-    dependsOn("createBlueprintDir")
 
     val inputFiles = listOf(
         "window.blp",
         "components/settings/settings.blp",
-        "components/sidebar/sidebar.blp"
+        "components/sidebar/sidebar.blp",
+        "components/playback/playback_info.blp",
+        "components/playback/playback_controls.blp",
+        "components/playback/playback_widget.blp",
+        "components/selection/selection_toolbar.blp",
     )
 
     commandLine(

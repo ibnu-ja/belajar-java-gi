@@ -9,7 +9,7 @@ project(
 i18n = import('i18n')
 gnome = import('gnome')
 
-jar_name = meson.project_name() + '-' + meson.project_version() + '.jar'
+jar_name = meson.project_name() + '-' + meson.project_version() + '-all.jar'
 jar_path = join_paths(meson.project_source_root(), 'build/libs', jar_name)
 app_datadir = get_option('datadir') / meson.project_name()
 
