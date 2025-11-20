@@ -1,5 +1,6 @@
 package io.ibnuja.hypersonic.ui.components.playback;
 
+import io.ibnuja.hypersonic.state.PlaybackState;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.gtk.Box;
@@ -42,12 +43,17 @@ public class PlaybackControlsWidget extends Box {
 
     @InstanceInit
     public void init() {
-        playPauseButton.onClicked(() -> {
-            log.info("play/pause button clicked");
-            if (playPauseButton.getIconName().equals("media-playback-start-symbolic")) {
+        PlaybackState store = PlaybackState.getInstance();
+        //    howto use
+        playPauseButton.onClicked(store::togglePlay);
+
+        store.subscribe(isPlaying -> {
+            if (isPlaying) {
                 playPauseButton.setIconName("media-playback-pause-symbolic");
+                log.info("icon is changed to play");
             } else {
                 playPauseButton.setIconName("media-playback-start-symbolic");
+                log.info("icon is changed to pause");
             }
         });
     }
