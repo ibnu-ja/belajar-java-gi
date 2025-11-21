@@ -8,6 +8,7 @@ import ru.stersh.subsonic.api.model.*
  * JVM overload of [ru.stersh.subsonic.api.SubsonicApi]
  * @see ru.stersh.subsonic.api.SubsonicApi
  */
+@Suppress("unused")
 class SubsonicApi(private val api: RawSubsonicApi) {
 
     fun ping(): EmptyResponse = runBlocking {
