@@ -21,8 +21,24 @@ import java.lang.foreign.MemorySegment;
 @GtkTemplate(name = "PlaybackControlsWidget", ui = "/io/ibnuja/hypersonic/components/playback/playback_controls.ui")
 public class PlaybackControlsWidget extends Box {
 
+    @GtkChild(name = "shuffle")
+    public ToggleButton shuffleButton;
+
+    @GtkChild(name = "prev")
+    public Button prevButton;
+
     @GtkChild(name = "play_pause")
     public Button playPauseButton;
+
+    @GtkChild(name = "next")
+    public Button nextButton;
+
+    @GtkChild(name = "repeat")
+    public ToggleButton repeatButton;
+
+    public PlaybackControlsWidget() {
+        super();
+    }
 
     public PlaybackControlsWidget(MemorySegment address) {
         super(address);
