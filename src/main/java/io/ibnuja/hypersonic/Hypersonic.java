@@ -1,5 +1,9 @@
 package io.ibnuja.hypersonic;
 
+import io.ibnuja.hypersonic.audio.AudioPlayer;
+import io.ibnuja.hypersonic.audio.PlaybackAction;
+import io.ibnuja.hypersonic.model.Song;
+import io.ibnuja.hypersonic.state.ConnectionState;
 import io.ibnuja.hypersonic.ui.MainWindow;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackControlsWidget;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfoWidget;
@@ -27,40 +31,75 @@ import java.util.List;
 @SuppressWarnings({"java:S1118", "java:S125"})
 public class Hypersonic {
 
-    static void main(String[] args) throws GErrorException {
-        Gst.init(new Out<>(new String[]{}));
+    // Global reference to AudioPlayer (The Controller)
+    public static AudioPlayer audioPlayer;
+
+    public static void main(String[] args) throws GErrorException {
+        // GStreamer initialization with Out<String[]> as requested
+        // We pass the args to GStreamer so it can parse its own flags if needed
+        Out<String[]> gstArgs = new Out<>(args);
+        Gst.init(gstArgs);
+
         Pixbuf.getFormats().forEach(pixbufFormat -> log.debug(
                 "pixbufFormat supported: {}, {} ",
                 pixbufFormat.getName(),
                 pixbufFormat.getDescription()
         ));
 
-        //create ktor http client
-        // create subsonic api
-        // pick random song from api
+        // Initialize the Audio Controller
+        audioPlayer = new AudioPlayer();
 
-        //log.info("subsonicClient: {}", api);
-        //log.info("randomSong: {}", api.getRandomSongs(1));
+        // Connect to Subsonic (Hardcoded for now as per your setup)
+        ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
 
+        // Test: Load a random song immediately
+        try {
+            var result = ConnectionState.INSTANCE.getApi().getRandomSongs(1);
+            if (!result.getRandomSongs().getSong().isEmpty()) {
+                var apiSong = result.getRandomSongs().getSong().getFirst();
+                var streamUrl = ConnectionState.INSTANCE.getApi().streamUrl(apiSong.getId());
 
+                // Convert Subsonic Song to our GObject Song
+                Song song = new Song(
+                        apiSong.getId(),
+                        apiSong.getTitle(),
+                        apiSong.getArtist(),
+                        streamUrl,
+                        apiSong.getDuration() != null ? apiSong.getDuration() : 0
+                );
+
+                // Send Action: Load Song
+                audioPlayer.send(new PlaybackAction.LoadSong(song));
+            }
+        } catch (Exception e) {
+            log.error("Failed to fetch songs", e);
+        }
+
+        // Load Resources and Start Application
         try (InputStream in = Hypersonic.class.getResourceAsStream("/hypersonicapp.gresource")) {
+            // Register Template Classes
             TemplateTypes.register(PlaybackWidget.class);
             TemplateTypes.register(PlaybackInfoWidget.class);
             TemplateTypes.register(PlaybackControlsWidget.class);
             TemplateTypes.register(SelectionToolbarWidget.class);
+
             Resource resource;
             if (in != null) {
                 resource = Resource.fromData(in.readAllBytes());
             } else {
+                // Fallback for dev environment if needed
                 resource = Resource.load("src/main/resources/hypersonicapp.gresource");
             }
             resource.resourcesRegister();
-            new Application().run(args);
+
+            new Application().run(gstArgs.get());
+
         } catch (IOException e) {
             log.error("error loading resource:", e);
+        } finally {
+            ConnectionState.INSTANCE.disconnect();
+            log.info("Application exited and connections closed.");
         }
-
-        // close ktor client
     }
 
     @SuppressWarnings("java:S110")
@@ -92,7 +131,6 @@ public class Hypersonic {
 
         public void preferencesActivated(Variant parameter) {
             MainWindow win = (MainWindow) getActiveWindow();
-            // Assuming Settings class is in the component.settings package
             SettingWindow settingWindow = new SettingWindow();
             settingWindow.present(win);
         }
