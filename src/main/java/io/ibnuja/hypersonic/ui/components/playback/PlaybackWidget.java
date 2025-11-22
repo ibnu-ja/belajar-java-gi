@@ -24,14 +24,13 @@ public class PlaybackWidget extends Box {
     public Scale seekBar;
 
     @GtkChild(name = "track_duration")
-    public Label trackPosition;
+    public Label trackDuration;
 
     @GtkChild(name = "track_position")
-    public Label trackDuration;
+    public Label trackPosition;
 
     @GtkChild(name = "volume_slider")
     public Scale volumeSlider;
-
 
     public PlaybackWidget() {
         super();

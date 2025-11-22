@@ -34,7 +34,7 @@ public class PlaybackControlsWidget extends Box {
     public Button nextButton;
 
     @GtkChild(name = "repeat")
-    public ToggleButton repeatButton;
+    public Button repeatButton;
 
     public PlaybackControlsWidget() {
         super();
@@ -45,6 +45,7 @@ public class PlaybackControlsWidget extends Box {
     }
 
     @InstanceInit
+    @SuppressWarnings("unused")
     public void init() {
         AudioPlayer player = Hypersonic.audioPlayer;
         PlayerState state = player.getState();

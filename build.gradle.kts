@@ -102,6 +102,7 @@ tasks.register<Exec>("compileBlueprints") {
 
     val inputFiles = listOf(
         "window.blp",
+        //components
         "components/settings/settings.blp",
         "components/sidebar/sidebar.blp",
         "components/playback/playback_info.blp",

@@ -1,7 +1,6 @@
 package io.ibnuja.hypersonic;
 
 import io.ibnuja.hypersonic.audio.AudioPlayer;
-import io.ibnuja.hypersonic.audio.PlaybackAction;
 import io.ibnuja.hypersonic.model.Song;
 import io.ibnuja.hypersonic.state.ConnectionState;
 import io.ibnuja.hypersonic.ui.MainWindow;
@@ -31,12 +30,10 @@ import java.util.List;
 @SuppressWarnings({"java:S1118", "java:S125"})
 public class Hypersonic {
 
-    // Global reference to AudioPlayer (The Controller)
+    @SuppressWarnings({"java:S1444", "java:S1104"})
     public static AudioPlayer audioPlayer;
 
-    public static void main(String[] args) throws GErrorException {
-        // GStreamer initialization with Out<String[]> as requested
-        // We pass the args to GStreamer so it can parse its own flags if needed
+    static void main(String[] args) throws GErrorException {
         Out<String[]> gstArgs = new Out<>(args);
         Gst.init(gstArgs);
 
@@ -59,7 +56,6 @@ public class Hypersonic {
                 var apiSong = result.getRandomSongs().getSong().getFirst();
                 var streamUrl = ConnectionState.INSTANCE.getApi().streamUrl(apiSong.getId());
 
-                // Convert Subsonic Song to our GObject Song
                 Song song = new Song(
                         apiSong.getId(),
                         apiSong.getTitle(),
