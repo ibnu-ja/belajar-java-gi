@@ -109,6 +109,8 @@ tasks.register<Exec>("compileBlueprints") {
         "components/playback/playback_controls.blp",
         "components/playback/playback_widget.blp",
         "components/selection/selection_toolbar.blp",
+        //pages
+        "pages/home.blp",
     )
 
     commandLine(
@@ -142,6 +144,7 @@ dependencies {
     implementation("org.java-gi:gstreamer:${javaGiVersion}")
     implementation("ru.stersh:subsonic-api:${subsonicApiVersion}")
     implementation("io.ktor:ktor-client-apache5:${ktorVersion}")
+    implementation(kotlin("stdlib-jdk8"))
 
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl")
     runtimeOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
@@ -150,7 +153,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.test {

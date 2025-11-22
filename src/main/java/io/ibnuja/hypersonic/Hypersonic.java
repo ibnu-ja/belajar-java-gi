@@ -9,6 +9,7 @@ import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfoWidget;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
+import io.ibnuja.hypersonic.ui.pages.HomePage;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
 import org.gnome.gdkpixbuf.Pixbuf;
@@ -43,13 +44,10 @@ public class Hypersonic {
                 pixbufFormat.getDescription()
         ));
 
-        // Initialize the Audio Controller
         audioPlayer = new AudioPlayer();
 
-        // Connect to Subsonic (Hardcoded for now as per your setup)
         ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
 
-        // Test: Load a random song immediately
         try {
             var result = ConnectionState.INSTANCE.getApi().getRandomSongs(1);
             if (!result.getRandomSongs().getSong().isEmpty()) {
@@ -65,19 +63,21 @@ public class Hypersonic {
                 );
 
                 // Send Action: Load Song
-                audioPlayer.send(new PlaybackAction.LoadSong(song));
+                //audioPlayer.send(new PlaybackAction.LoadSong(song));
+                log.info("Loaded song: {}", song);
             }
         } catch (Exception e) {
             log.error("Failed to fetch songs", e);
         }
 
-        // Load Resources and Start Application
         try (InputStream in = Hypersonic.class.getResourceAsStream("/hypersonicapp.gresource")) {
             // Register Template Classes
             TemplateTypes.register(PlaybackWidget.class);
             TemplateTypes.register(PlaybackInfoWidget.class);
             TemplateTypes.register(PlaybackControlsWidget.class);
             TemplateTypes.register(SelectionToolbarWidget.class);
+
+            TemplateTypes.register(HomePage.class);
 
             Resource resource;
             if (in != null) {

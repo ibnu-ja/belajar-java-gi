@@ -1,0 +1,17 @@
+using Gtk 4.0;
+
+template $HomePage : Box {
+  orientation: vertical;
+  halign: center;
+  valign: center;
+
+  Label {
+    label: "Welcome to Hypersonic";
+    styles ["title-1"]
+  }
+
+  Label {
+    label: "Select music from the sidebar to begin";
+    styles ["body"]
+  }
+}
