@@ -8,6 +8,7 @@
         <file alias="components/playback/playback_controls.ui" preprocess="xml-stripblanks">blueprint-compiler/components/playback/playback_controls.ui</file>
         <file alias="components/playback/playback_widget.ui" preprocess="xml-stripblanks">blueprint-compiler/components/playback/playback_widget.ui</file>
         <file alias="components/selection/selection_toolbar.ui" preprocess="xml-stripblanks">blueprint-compiler/components/selection/selection_toolbar.ui</file>
+        <file alias="components/sidebar/sidebar_row.ui" preprocess="xml-stripblanks">blueprint-compiler/components/sidebar/sidebar_row.ui</file>
         <!--pages-->
         <file alias="pages/home.ui" preprocess="xml-stripblanks">blueprint-compiler/pages/home.ui</file>
     </gresource>

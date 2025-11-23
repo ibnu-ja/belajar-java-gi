@@ -9,6 +9,7 @@ import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfoWidget;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
+import io.ibnuja.hypersonic.ui.components.sidebar.SidebarRow;
 import io.ibnuja.hypersonic.ui.pages.HomePage;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
@@ -69,6 +70,7 @@ public class Hypersonic {
             TemplateTypes.register(PlaybackInfoWidget.class);
             TemplateTypes.register(PlaybackControlsWidget.class);
             TemplateTypes.register(SelectionToolbarWidget.class);
+            TemplateTypes.register(SidebarRow.class);
 
             TemplateTypes.register(HomePage.class);
 

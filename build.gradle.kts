@@ -108,6 +108,7 @@ tasks.register<Exec>("compileBlueprints") {
         "components/playback/playback_controls.blp",
         "components/playback/playback_widget.blp",
         "components/selection/selection_toolbar.blp",
+        "components/sidebar/sidebar_row.blp",
         //pages
         "pages/home.blp",
     )
