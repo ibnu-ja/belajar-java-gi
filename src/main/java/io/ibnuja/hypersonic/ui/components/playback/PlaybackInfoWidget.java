@@ -1,6 +1,7 @@
 package io.ibnuja.hypersonic.ui.components.playback;
 
-import io.ibnuja.hypersonic.state.PlaybackState;
+import io.ibnuja.hypersonic.Hypersonic;
+import io.ibnuja.hypersonic.state.Playback;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.gtk.Button;
@@ -29,16 +30,24 @@ public class PlaybackInfoWidget extends Button {
     }
 
     @InstanceInit
+    @SuppressWarnings("unused")
     public void init() {
-        PlaybackState store = PlaybackState.getInstance();
+        Hypersonic.audioPlayer.subscribe(this::onEvent);
+    }
 
-        store.subscribe(status -> {
-            switch (status) {
-                case PAUSED -> currentSongInfo.setText("Paused");
-                case PLAYING -> currentSongInfo.setText("Playing");
-                // case STOPPED -> currentSongInfo.setText("Stopped");
-                default -> currentSongInfo.setText("No song playing.");
+    private void onEvent(Playback.Event event) {
+        switch (event) {
+            case Playback.Event.TrackChanged(var song) -> {
+                currentSongInfo.setVisible(true);
+                String markup = "<b>" + escape(song.title()) + "</b>\n" + escape(song.artist());
+                currentSongInfo.setMarkup(markup);
             }
-        });
+            case Playback.Event.PlaybackStopped _ -> currentSongInfo.setLabel("No song playing");
+            default -> log.warn("Unhandled event: {}. Do nothing", event);
+        }
+    }
+
+    private String escape(String text) {
+        return text == null ? "" : text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }

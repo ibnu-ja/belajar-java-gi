@@ -1,26 +1,27 @@
 package io.ibnuja.hypersonic.audio;
 
+import io.ibnuja.hypersonic.state.Playback;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.*;
 import org.gnome.glib.GError;
 import org.gnome.glib.GLib;
 import org.javagi.base.Out;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
-// Defines the functional interface required by bus.connect
 
 @Slf4j
 public class GstBackend {
 
     private final Element playbin;
-    private final Consumer<PlaybackAction> sender;
+    private final Consumer<Playback.Action> dispatcher;
+    @SuppressWarnings("FieldCanBeLocal")
     private final Element fakesink;
 
-    public GstBackend(Consumer<PlaybackAction> sender) {
-        this.sender = sender;
+    public GstBackend(Consumer<Playback.Action> dispatcher) {
+        this.dispatcher = dispatcher;
         playbin = ElementFactory.make("playbin", "audio-player");
         if (playbin == null) {
             throw new IllegalStateException("Failed to create playbin element");
@@ -33,7 +34,6 @@ public class GstBackend {
 
         setupBus();
     }
-
 
     private void setupBus() {
         Bus bus = playbin.getBus();
@@ -59,17 +59,10 @@ public class GstBackend {
 
     /**
      * <a href="https://gitlab.com/esiqveland/subsound-gtk/-/blob/217ba95ef9e8a39a99ff0126d09bf7f68a47928c/src/main/java/com/github/subsound/sound/PlaybinPlayer.java">sorse</a>
-     * @param msgTypes
-     * @param msg
      */
+    @SuppressWarnings("StatementWithEmptyBody")
     private void processBusMessageOnMainThread(Set<MessageType> msgTypes, Message msg) {
-        if (msgTypes.contains(MessageType.EOS)) {
-            System.out.println("Player: Got Event Type: " + MessageType.EOS.name());
-            GLib.print("End of stream\n");
-            // Maps external calls: this.pause() and this.notifyState()
-            sender.accept(new PlaybackAction.SongFinished());
-            sender.accept(new PlaybackAction.Pause());
-        } else if (msgTypes.contains(MessageType.ERROR)) {
+        if (msgTypes.contains(MessageType.ERROR)) {
             Out<GError> errorOut = new Out<>();
             Out<String> debugOut = new Out<>();
             msg.parseError(errorOut, debugOut);
@@ -78,32 +71,25 @@ public class GstBackend {
             String debug = debugOut.get();
 
             GLib.printerr("Error: %s\nDebug: %s\n", error != null ? error.readMessage() : "Unknown Error", debug);
-
-            // Maps external call: loop.quit() (via Stop action on main thread)
-            sender.accept(new PlaybackAction.Stop());
-        } else if (msgTypes.contains(MessageType.ASYNC_DONE)) {
-            // Maps external call: this.onPositionChanged()
-            System.out.println("Player: Got Event Type: " + MessageType.ASYNC_DONE.name());
-            sender.accept(new PlaybackAction.Seek(0));
-        } else if (msgTypes.contains(MessageType.STREAM_START)) {
-            // Maps external call: this.onDurationChanged() and this.onPositionChanged()
-            System.out.println("Player: Got Event Type: " + MessageType.STREAM_START.name());
-            sender.accept(new PlaybackAction.Seek(0));
-        } else if (msgTypes.contains(MessageType.STATE_CHANGED)) {
-            System.out.println("Player: playbin: Got Event Type: " + MessageType.STATE_CHANGED.name());
+            dispatcher.accept(new Playback.Action.Stop());
+        } else if (msgTypes.contains(MessageType.EOS)) {
+            dispatcher.accept(new Playback.Action.SongFinished());
+        } else if (msgTypes.containsAll(List.of(
+                MessageType.ASYNC_DONE,
+                MessageType.STREAM_START,
+                MessageType.STATE_CHANGED,
+                MessageType.DURATION_CHANGED
+        ))) {
+            dispatcher.accept(new Playback.Action.Seek(0));
         } else if (msgTypes.contains(MessageType.BUFFERING)) {
             Out<Integer> percentOut = new Out<>();
             msg.parseBuffering(percentOut);
             int percent = percentOut.get();
-            System.out.println("Player: Got Event Type: " + MessageType.BUFFERING.name() + ": percent=" + percent);
-        } else if (msgTypes.contains(MessageType.DURATION_CHANGED)) {
-            // Maps external call: this.onDurationChanged()
-            System.out.println("Player: Got Event Type: " + MessageType.DURATION_CHANGED.name());
-            sender.accept(new PlaybackAction.Seek(0));
+            log.info("Player: Got Event Type: {}, percent: {}", MessageType.BUFFERING.name(), percent);
         } else if (msgTypes.contains(MessageType.TOC)) {
-            System.out.println("Player: Got Event Type: " + MessageType.TOC.name());
+            //TODO handle event if needed
         } else if (msgTypes.contains(MessageType.TAG)) {
-            System.out.println("Player: Got Event Type: " + MessageType.TAG.name());
+            //TODO handle event if needed
         }
     }
 
@@ -124,6 +110,7 @@ public class GstBackend {
         playbin.setState(State.NULL);
     }
 
+    @SuppressWarnings("unused")
     public long queryPosition() {
         Out<Long> positionOut = new Out<>();
         playbin.queryPosition(Format.TIME, positionOut);
@@ -134,6 +121,7 @@ public class GstBackend {
         return 0;
     }
 
+    @SuppressWarnings("unused")
     public long queryDuration() {
         Out<Long> durationOut = new Out<>();
         playbin.queryDuration(Format.TIME, durationOut);

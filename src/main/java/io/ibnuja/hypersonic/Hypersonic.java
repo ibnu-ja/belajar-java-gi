@@ -3,6 +3,7 @@ package io.ibnuja.hypersonic;
 import io.ibnuja.hypersonic.audio.AudioPlayer;
 import io.ibnuja.hypersonic.model.Song;
 import io.ibnuja.hypersonic.state.ConnectionState;
+import io.ibnuja.hypersonic.state.Playback;
 import io.ibnuja.hypersonic.ui.MainWindow;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackControlsWidget;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfoWidget;
@@ -32,6 +33,7 @@ import java.util.List;
 public class Hypersonic {
 
     @SuppressWarnings({"java:S1444", "java:S1104"})
+    //TODO use a proper singleton pattern
     public static AudioPlayer audioPlayer;
 
     static void main(String[] args) throws GErrorException {
@@ -63,8 +65,8 @@ public class Hypersonic {
                 );
 
                 // Send Action: Load Song
-                //audioPlayer.send(new PlaybackAction.LoadSong(song));
                 log.info("Loaded song: {}", song);
+                audioPlayer.dispatch(new Playback.Action.LoadSongs(List.of(song)));
             }
         } catch (Exception e) {
             log.error("Failed to fetch songs", e);

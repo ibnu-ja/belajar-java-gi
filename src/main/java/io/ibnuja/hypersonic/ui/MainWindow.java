@@ -4,6 +4,7 @@ import io.ibnuja.hypersonic.Hypersonic;
 import io.ibnuja.hypersonic.navigation.Route;
 import io.ibnuja.hypersonic.navigation.ScreenFactory;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import org.gnome.adw.ApplicationWindow;
 import org.gnome.adw.NavigationSplitView;
 import org.gnome.adw.Toast;
@@ -17,6 +18,7 @@ import org.javagi.gtk.annotations.GtkTemplate;
 @GtkTemplate(ui = "/io/ibnuja/hypersonic/window.ui", name = "MainWindow")
 @SuppressWarnings({"java:S110", "java:S112", "java:S125"})
 @EqualsAndHashCode(callSuper = true)
+@Slf4j
 public class MainWindow extends ApplicationWindow {
 
     //@GtkChild(name = "toast_overlay")
@@ -37,6 +39,7 @@ public class MainWindow extends ApplicationWindow {
 
         this.screenFactory = new ScreenFactory();
         navigate(new Route.Home());
+        log.info("homepage loaded");
     }
 
     @InstanceInit

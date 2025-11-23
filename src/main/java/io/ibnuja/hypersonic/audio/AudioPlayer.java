@@ -1,74 +1,54 @@
 package io.ibnuja.hypersonic.audio;
 
-import io.ibnuja.hypersonic.model.Song;
-import io.ibnuja.hypersonic.state.PlayerState;
+import io.ibnuja.hypersonic.state.Playback;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.glib.GLib;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 @Slf4j
 public class AudioPlayer {
 
     @Getter
-    private final PlayerState state;
+    private final Playback state;
     private final GstBackend backend;
-
-    // private final Queue queue;
+    private final List<Consumer<Playback.Event>> listeners = new ArrayList<>();
 
     public AudioPlayer() {
-        this.state = new PlayerState();
-        this.backend = new GstBackend(this::send);
+        this.state = new Playback();
+        this.backend = new GstBackend(this::dispatch);
     }
 
-    public void send(PlaybackAction action) {
+    public void subscribe(Consumer<Playback.Event> listener) {
+        listeners.add(listener);
+    }
+
+    public void dispatch(Playback.Action action) {
         GLib.idleAdd(GLib.PRIORITY_DEFAULT_IDLE, () -> {
-            processAction(action);
+            var events = state.update(action);
+            for (var event : events) {
+                // handle side effects
+                processInternalEvent(event);
+                // notify listeners
+                listeners.forEach(l -> l.accept(event));
+            }
             return false;
         });
     }
 
-    private void processAction(PlaybackAction action) {
-        log.debug("Processing Action: {}", action);
-
-        switch (action) {
-            case PlaybackAction.Play play -> {
-                state.setPlaying(true);
+    private void processInternalEvent(Playback.Event event) {
+        switch (event) {
+            case Playback.Event.TrackChanged(var song) -> {
+                backend.setUri(song.uri());
                 backend.play();
             }
-            case PlaybackAction.Pause pause -> {
-                state.setPlaying(false);
-                backend.pause();
-            }
-            case PlaybackAction.Stop stop -> {
-                state.setPlaying(false);
-                state.setPosition(0);
-                backend.stop();
-            }
-            case PlaybackAction.LoadSong load -> {
-                Song song = load.song();
-                state.setCurrentSong(song);
-                backend.setUri(song.getUri());
-                // autoplay
-                send(new PlaybackAction.Play());
-            }
-            case PlaybackAction.SongFinished songFinished -> {
-                log.info("Song Finished");
-                //play next
-                send(new PlaybackAction.Stop());
-            }
-            case PlaybackAction.PositionChanged pos -> state.setPosition(pos.position());
-            case null, default -> {
-            }
+            case Playback.Event.PlaybackResumed _ -> backend.play();
+            case Playback.Event.PlaybackPaused _ -> backend.pause();
+            case Playback.Event.PlaybackStopped _ -> backend.stop();
+            default -> log.warn("Unhandled event: {}. Do nothing", event);
         }
-    }
-
-    private boolean tick() {
-        if (state.isPlaying()) {
-            long pos = backend.queryPosition();
-            if (pos >= 0 && pos != state.getPosition()) {
-                state.setPosition(pos);
-            }
-        }
-        return true;
     }
 }
