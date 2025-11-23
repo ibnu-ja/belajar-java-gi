@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.gdk.Texture;
 import org.gnome.gdkpixbuf.PixbufLoader;
+import org.gnome.glib.GLib;
 import org.gnome.gtk.Button;
 import org.gnome.gtk.Image;
 import org.gnome.gtk.Label;
@@ -45,6 +46,7 @@ public class PlaybackInfoWidget extends Button {
     @InstanceInit
     @SuppressWarnings("unused")
     public void init() {
+        log.debug("PlaybackInfoWidget initialized");  // Add this
         Hypersonic.audioPlayer.subscribe(this::onEvent);
     }
 
@@ -73,8 +75,12 @@ public class PlaybackInfoWidget extends Button {
                 loader.write(imageData);
                 loader.close();
                 var pixbuf = loader.getPixbuf();
-                playingImage.setFromPaintable(Texture.forPixbuf(pixbuf));
-                playingImage.setPixelSize(60);
+                GLib.idleAdd(GLib.PRIORITY_DEFAULT_IDLE, () -> {
+                    playingImage.setFromPaintable(Texture.forPixbuf(pixbuf));
+                    playingImage.setPixelSize(60);
+
+                    return false;
+                });
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 log.error("Interrupted while loading cover art", e);
