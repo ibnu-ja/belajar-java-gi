@@ -1,15 +1,18 @@
 package io.ibnuja.hypersonic.ui;
 
 import io.ibnuja.hypersonic.Hypersonic;
+import io.ibnuja.hypersonic.model.AppModel;
+import io.ibnuja.hypersonic.model.NavigationModel;
 import io.ibnuja.hypersonic.navigation.Route;
 import io.ibnuja.hypersonic.navigation.ScreenFactory;
+import io.ibnuja.hypersonic.trait.Dispatcher;
+import io.ibnuja.hypersonic.state.App;
 import io.ibnuja.hypersonic.ui.components.sidebar.SidebarItem;
 import io.ibnuja.hypersonic.ui.components.sidebar.SidebarRow;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.adw.ApplicationWindow;
 import org.gnome.adw.NavigationSplitView;
-import org.gnome.adw.Toast;
 import org.gnome.gio.Settings;
 import org.gnome.gtk.ListBox;
 import org.gnome.gtk.ListBoxRow;
@@ -27,9 +30,6 @@ import java.util.List;
 @Slf4j
 public class MainWindow extends ApplicationWindow {
 
-    //@GtkChild(name = "toast_overlay")
-    //public ToastOverlay toastOverlay;
-
     @GtkChild(name = "navigation_stack")
     public Stack navigationStack;
 
@@ -39,6 +39,8 @@ public class MainWindow extends ApplicationWindow {
     @GtkChild(name = "home_listbox")
     public ListBox homeListBox;
 
+    private final AppModel appModel;
+    private final NavigationModel navigationModel;
     private final ScreenFactory screenFactory;
 
     protected Settings settings;
@@ -46,10 +48,59 @@ public class MainWindow extends ApplicationWindow {
     public MainWindow(Hypersonic.Application app) {
         setApplication(app);
 
-        this.screenFactory = new ScreenFactory();
-        navigate(new Route.Home());
-        log.info("homepage loaded");
+        this.appModel = new AppModel();
+
+        Dispatcher<App.Action> dispatcher = (App.Action action) -> {
+            log.debug("Dispatching Action: {}", action);
+            List<App.Event> events = appModel.update(action);
+            for (App.Event event : events) {
+                handleEvent(event);
+            }
+        };
+        this.navigationModel = new NavigationModel(appModel.getAppState(), dispatcher);
+        this.screenFactory = new ScreenFactory(route -> dispatcher.dispatch(new App.Action.Navigate(route)));
+        updateNavigationStack(new Route.Home());
         setupSidebar();
+    }
+
+    private void handleEvent(App.Event event) {
+        log.debug("Handling Event: {}", event);
+
+        switch (event) {
+            case App.Event.NavigationPushed(var route) -> updateNavigationStack(route);
+            case App.Event.NavigationPopped _ -> {
+                Route current = appModel.getAppState().getCurrentRoute();
+                if (current != null) {
+                    navigationStack.setVisibleChildName(current.name());
+                }
+            }
+            case App.Event.NavigationReset(var root) -> {
+                Widget child = navigationStack.getFirstChild();
+                while (child != null) {
+                    Widget next = child.getNextSibling();
+                    navigationStack.remove(child);
+                    child = next;
+                }
+                updateNavigationStack(root);
+            }
+        }
+    }
+
+    private void updateNavigationStack(Route route) {
+        String id = route.name();
+        Widget view = navigationStack.getChildByName(id);
+
+        if (view == null) {
+            view = screenFactory.create(route);
+            if (view != null) {
+                navigationStack.addNamed(view, id);
+            }
+        }
+
+        navigationStack.setVisibleChildName(id);
+        if (splitView.getCollapsed()) {
+            splitView.setShowContent(true);
+        }
     }
 
     @InstanceInit
@@ -58,27 +109,8 @@ public class MainWindow extends ApplicationWindow {
         settings = new Settings("io.ibnuja.Hypersonic");
     }
 
-    public void navigate(Route route) {
-        String id = route.name();
-        if (navigationStack.getChildByName(id) == null) {
-            Widget view = screenFactory.create(route);
-            if (view != null) {
-                navigationStack.addNamed(view, id);
-            } else {
-                log.warn("No view created for route: {}", id);
-                return;
-            }
-        }
-        navigationStack.setVisibleChildName(id);
-        if (splitView.getCollapsed()) {
-            splitView.setShowContent(true);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private void showToast(String message) {
-        Toast toast = new Toast(message);
-        //toastOverlay.addToast(toast);
+    public void pop() {
+        navigationModel.pop();
     }
 
     private void setupSidebar() {
@@ -102,7 +134,7 @@ public class MainWindow extends ApplicationWindow {
                 items.stream()
                         .filter(i -> i.title().equals(title))
                         .findFirst()
-                        .ifPresent(i -> navigate(i.route()));
+                        .ifPresent(i -> navigationModel.resetTo(i.route()));
             }
         });
     }
