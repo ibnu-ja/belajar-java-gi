@@ -1,7 +1,6 @@
 package io.ibnuja.hypersonic;
 
 import io.ibnuja.hypersonic.audio.AudioPlayer;
-import io.ibnuja.hypersonic.model.Song;
 import io.ibnuja.hypersonic.state.ConnectionState;
 import io.ibnuja.hypersonic.state.Playback;
 import io.ibnuja.hypersonic.ui.MainWindow;
@@ -53,16 +52,7 @@ public class Hypersonic {
         try {
             var result = ConnectionState.INSTANCE.getApi().getRandomSongs(1);
             if (!result.getRandomSongs().getSong().isEmpty()) {
-                var apiSong = result.getRandomSongs().getSong().getFirst();
-                var streamUrl = ConnectionState.INSTANCE.getApi().streamUrl(apiSong.getId());
-
-                Song song = new Song(
-                        apiSong.getId(),
-                        apiSong.getTitle(),
-                        apiSong.getArtist(),
-                        streamUrl,
-                        apiSong.getDuration() != null ? apiSong.getDuration() : 0
-                );
+                var song = result.getRandomSongs().getSong().getFirst();
 
                 // Send Action: Load Song
                 log.info("Loaded song: {}", song);

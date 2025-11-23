@@ -1,7 +1,7 @@
 package io.ibnuja.hypersonic.state;
 
-import io.ibnuja.hypersonic.model.Song;
 import io.ibnuja.hypersonic.trait.UpdatableState;
+import ru.stersh.subsonic.api.model.Song;
 
 import java.util.ArrayList;
 import java.util.Collections;

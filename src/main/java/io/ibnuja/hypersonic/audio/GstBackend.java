@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Slf4j
-public class GstBackend {
+public class GstBackend implements Backend {
 
     private final Element playbin;
     private final Consumer<Playback.Action> dispatcher;
@@ -46,32 +46,38 @@ public class GstBackend {
 
         bus.addSignalWatch();
 
-        bus.connect("message", (Bus.MessageCallback) (Message msg) -> {
-            if (msg == null) return;
+        bus.connect(
+                "message", (Bus.MessageCallback) (Message msg) -> {
+                    if (msg == null) return;
 
-            // Retrieve the message type synchronously
-            Set<MessageType> msgTypes = msg.readType();
-            if (msgTypes == null) return;
+                    // Retrieve the message type synchronously
+                    Set<MessageType> msgTypes = msg.readType();
+                    if (msgTypes == null) return;
 
-            if (msgTypes.contains(MessageType.EOS)) {
-                log.debug("EOS received");
-                GLib.idleAdd(GLib.PRIORITY_DEFAULT_IDLE, () -> {
-                    dispatcher.accept(new Playback.Action.SongFinished());
-                    return false;
-                });
-            } else if (msgTypes.contains(MessageType.ERROR)) {
-                Out<GError> errorOut = new Out<>();
-                Out<String> debugOut = new Out<>();
-                msg.parseError(errorOut, debugOut);
-                String errorMsg = errorOut.get() != null ? errorOut.get().readMessage() : "Unknown Error";
-                String debugMsg = debugOut.get();
-                log.error("GStreamer Error: {} - Debug: {}", errorMsg, debugMsg);
-                GLib.idleAdd(GLib.PRIORITY_DEFAULT_IDLE, () -> {
-                    dispatcher.accept(new Playback.Action.Stop());
-                    return false;
-                });
-            }
-        });
+                    if (msgTypes.contains(MessageType.EOS)) {
+                        log.debug("EOS received");
+                        GLib.idleAdd(
+                                GLib.PRIORITY_DEFAULT_IDLE, () -> {
+                                    dispatcher.accept(new Playback.Action.SongFinished());
+                                    return false;
+                                }
+                        );
+                    } else if (msgTypes.contains(MessageType.ERROR)) {
+                        Out<GError> errorOut = new Out<>();
+                        Out<String> debugOut = new Out<>();
+                        msg.parseError(errorOut, debugOut);
+                        String errorMsg = errorOut.get() != null ? errorOut.get().readMessage() : "Unknown Error";
+                        String debugMsg = debugOut.get();
+                        log.error("GStreamer Error: {} - Debug: {}", errorMsg, debugMsg);
+                        GLib.idleAdd(
+                                GLib.PRIORITY_DEFAULT_IDLE, () -> {
+                                    dispatcher.accept(new Playback.Action.Stop());
+                                    return false;
+                                }
+                        );
+                    }
+                }
+        );
     }
 
     public void setUri(String uri) {

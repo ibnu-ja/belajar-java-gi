@@ -1,5 +1,6 @@
 package io.ibnuja.hypersonic.audio;
 
+import io.ibnuja.hypersonic.state.ConnectionState;
 import io.ibnuja.hypersonic.state.Playback;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,8 @@ public class AudioPlayer {
     private void processInternalEvent(Playback.Event event) {
         switch (event) {
             case Playback.Event.TrackChanged(var song) -> {
-                backend.setUri(song.uri());
+                var uri = ConnectionState.INSTANCE.getApi().streamUrl(song.getId());
+                backend.setUri(uri);
                 backend.play();
             }
             case Playback.Event.PlaybackResumed _ -> backend.play();

@@ -43,7 +43,7 @@ public class PlaybackInfoWidget extends Button {
         switch (event) {
             case Playback.Event.TrackChanged(var song) -> {
                 currentSongInfo.setVisible(true);
-                String markup = "<b>" + escape(song.title()) + "</b>\n" + escape(song.artist());
+                String markup = "<b>" + escape(song.getTitle()) + "</b>\n" + escape(song.getArtist());
                 currentSongInfo.setMarkup(markup);
             }
             case Playback.Event.PlaybackStopped _ -> currentSongInfo.setLabel("No song playing");
