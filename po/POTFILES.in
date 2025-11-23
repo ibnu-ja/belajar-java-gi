@@ -5,6 +5,10 @@ data/io.ibnuja.Hypersonic.metainfo.xml.in
 data/io.ibnuja.Hypersonic.gschema.xml
 
 # find src -name "*.blp" -print
-src/main/resources/components/sidebar/sidebar.blp
+src/main/resources/pages/home.blp
+src/main/resources/components/playback/playback_controls.blp
+src/main/resources/components/playback/playback_info.blp
+src/main/resources/components/playback/playback_widget.blp
 src/main/resources/components/settings/settings.blp
+src/main/resources/components/selection/selection_toolbar.blp
 src/main/resources/window.blp
