@@ -63,16 +63,9 @@ public class PlaybackControlsWidget extends Box {
     private void onEvent(@NotNull Playback.Event event) {
         log.debug("playback event: {}", event);
         switch (event) {
-            //noinspection unused
-            case Playback.Event.PlaybackResumed resumed -> {
-                //TODO add playingImage.setFromPaintable();
-                playPauseButton.setIconName("media-playback-pause-symbolic");
-            }
+            case Playback.Event.PlaybackResumed _ -> playPauseButton.setIconName("media-playback-pause-symbolic");
 
-            case Playback.Event.PlaybackPaused _, Playback.Event.PlaybackStopped _ -> {
-                //TODO add playingImage.setFromPaintable();
-                playPauseButton.setIconName("media-playback-start-symbolic");
-            }
+            case Playback.Event.PlaybackPaused _, Playback.Event.PlaybackStopped _ -> playPauseButton.setIconName("media-playback-start-symbolic");
 
             case Playback.Event.ShuffleChanged e -> shuffleButton.setActive(e.enabled());
 
