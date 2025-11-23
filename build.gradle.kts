@@ -144,6 +144,8 @@ dependencies {
     implementation("ru.stersh:subsonic-api:${subsonicApiVersion}")
     implementation("io.ktor:ktor-client-apache5:${ktorVersion}")
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.apache.logging.log4j:log4j-api")
+    implementation("org.apache.logging.log4j:log4j-core")
 
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl")
     runtimeOnly("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")

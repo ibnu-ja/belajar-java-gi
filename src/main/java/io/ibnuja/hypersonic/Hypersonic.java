@@ -36,6 +36,7 @@ public class Hypersonic {
     public static AudioPlayer audioPlayer;
 
     static void main(String[] args) throws GErrorException {
+        LoggingBootstrap.init();
         Out<String[]> gstArgs = new Out<>(args);
         Gst.init(gstArgs);
 
