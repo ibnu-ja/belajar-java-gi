@@ -1,14 +1,17 @@
 package io.ibnuja.hypersonic.ui.components.playback;
 
-import io.ibnuja.hypersonic.state.PlaybackState;
+import io.ibnuja.hypersonic.Hypersonic;
+import io.ibnuja.hypersonic.state.Playback;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.gtk.Box;
 import org.gnome.gtk.Button;
+import org.gnome.gtk.Image;
 import org.gnome.gtk.ToggleButton;
 import org.javagi.gobject.annotations.InstanceInit;
 import org.javagi.gtk.annotations.GtkChild;
 import org.javagi.gtk.annotations.GtkTemplate;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.foreign.MemorySegment;
 
@@ -31,7 +34,7 @@ public class PlaybackControlsWidget extends Box {
     public Button nextButton;
 
     @GtkChild(name = "repeat")
-    public ToggleButton repeatButton;
+    public Button repeatButton;
 
     public PlaybackControlsWidget() {
         super();
@@ -42,17 +45,39 @@ public class PlaybackControlsWidget extends Box {
     }
 
     @InstanceInit
+    @SuppressWarnings("unused")
     public void init() {
-        PlaybackState store = PlaybackState.getInstance();
-        //    howto use
-        playPauseButton.onClicked(store::togglePlay);
+        Hypersonic.audioPlayer.subscribe(this::onEvent);
 
-        store.subscribe(status -> {
-            if (status.equals(PlaybackState.Status.PAUSED)) {
-                playPauseButton.setIconName("media-playback-start-symbolic");
-            } else {
+        playPauseButton.onClicked(() -> Hypersonic.audioPlayer.dispatch(new Playback.Action.TogglePlay()));
+
+        nextButton.onClicked(() -> Hypersonic.audioPlayer.dispatch(new Playback.Action.Next()));
+
+        prevButton.onClicked(() -> Hypersonic.audioPlayer.dispatch(new Playback.Action.Previous()));
+
+        shuffleButton.onToggled(() -> Hypersonic.audioPlayer.dispatch(new Playback.Action.SetShuffle(shuffleButton.getActive())));
+
+        repeatButton.onClicked(() -> Hypersonic.audioPlayer.dispatch(new Playback.Action.ToggleRepeat()));
+    }
+
+    private void onEvent(@NotNull Playback.Event event) {
+        log.debug("playback event: {}", event);
+        switch (event) {
+            //noinspection unused
+            case Playback.Event.PlaybackResumed resumed -> {
+                //TODO add playingImage.setFromPaintable();
                 playPauseButton.setIconName("media-playback-pause-symbolic");
             }
-        });
+
+            case Playback.Event.PlaybackPaused _, Playback.Event.PlaybackStopped _ -> {
+                //TODO add playingImage.setFromPaintable();
+                playPauseButton.setIconName("media-playback-start-symbolic");
+            }
+
+            case Playback.Event.ShuffleChanged e -> shuffleButton.setActive(e.enabled());
+
+            default -> {
+            }
+        }
     }
 }

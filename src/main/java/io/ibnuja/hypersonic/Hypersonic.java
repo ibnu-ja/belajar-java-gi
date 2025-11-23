@@ -1,11 +1,15 @@
 package io.ibnuja.hypersonic;
 
+import io.ibnuja.hypersonic.audio.AudioPlayer;
+import io.ibnuja.hypersonic.state.ConnectionState;
+import io.ibnuja.hypersonic.state.Playback;
 import io.ibnuja.hypersonic.ui.MainWindow;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackControlsWidget;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfoWidget;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
+import io.ibnuja.hypersonic.ui.pages.HomePage;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
 import org.gnome.gdkpixbuf.Pixbuf;
@@ -27,40 +31,64 @@ import java.util.List;
 @SuppressWarnings({"java:S1118", "java:S125"})
 public class Hypersonic {
 
+    @SuppressWarnings({"java:S1444", "java:S1104"})
+    //TODO use a proper singleton pattern
+    public static AudioPlayer audioPlayer;
+
     static void main(String[] args) throws GErrorException {
-        Gst.init(new Out<>(new String[]{}));
+        LoggingBootstrap.init();
+        Out<String[]> gstArgs = new Out<>(args);
+        Gst.init(gstArgs);
+
         Pixbuf.getFormats().forEach(pixbufFormat -> log.debug(
                 "pixbufFormat supported: {}, {} ",
                 pixbufFormat.getName(),
                 pixbufFormat.getDescription()
         ));
 
-        //create ktor http client
-        // create subsonic api
-        // pick random song from api
+        audioPlayer = new AudioPlayer();
 
-        //log.info("subsonicClient: {}", api);
-        //log.info("randomSong: {}", api.getRandomSongs(1));
+        ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
 
+        try {
+            var result = ConnectionState.INSTANCE.getApi().getRandomSongs(1);
+            if (!result.getRandomSongs().getSong().isEmpty()) {
+                var song = result.getRandomSongs().getSong().getFirst();
+
+                // Send Action: Load Song
+                log.info("Loaded song: {}", song);
+                audioPlayer.dispatch(new Playback.Action.LoadSongs(List.of(song)));
+            }
+        } catch (Exception e) {
+            log.error("Failed to fetch songs", e);
+        }
 
         try (InputStream in = Hypersonic.class.getResourceAsStream("/hypersonicapp.gresource")) {
+            // Register Template Classes
             TemplateTypes.register(PlaybackWidget.class);
             TemplateTypes.register(PlaybackInfoWidget.class);
             TemplateTypes.register(PlaybackControlsWidget.class);
             TemplateTypes.register(SelectionToolbarWidget.class);
+
+            TemplateTypes.register(HomePage.class);
+
             Resource resource;
             if (in != null) {
                 resource = Resource.fromData(in.readAllBytes());
             } else {
+                // Fallback for dev environment if needed
                 resource = Resource.load("src/main/resources/hypersonicapp.gresource");
             }
             resource.resourcesRegister();
-            new Application().run(args);
+
+            new Application().run(gstArgs.get());
+
         } catch (IOException e) {
             log.error("error loading resource:", e);
+        } finally {
+            ConnectionState.INSTANCE.disconnect();
+            log.info("Application exited and connections closed.");
         }
-
-        // close ktor client
     }
 
     @SuppressWarnings("java:S110")
@@ -92,7 +120,6 @@ public class Hypersonic {
 
         public void preferencesActivated(Variant parameter) {
             MainWindow win = (MainWindow) getActiveWindow();
-            // Assuming Settings class is in the component.settings package
             SettingWindow settingWindow = new SettingWindow();
             settingWindow.present(win);
         }

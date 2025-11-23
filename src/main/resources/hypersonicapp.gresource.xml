@@ -2,11 +2,13 @@
 <gresources>
     <gresource prefix="/io/ibnuja/hypersonic">
         <file alias="window.ui" preprocess="xml-stripblanks">blueprint-compiler/window.ui</file>
-        <file alias="components/sidebar/sidebar.ui" preprocess="xml-stripblanks">blueprint-compiler/components/sidebar/sidebar.ui</file>
+        <!--components-->
         <file alias="components/settings/settings.ui" preprocess="xml-stripblanks">blueprint-compiler/components/settings/settings.ui</file>
         <file alias="components/playback/playback_info.ui" preprocess="xml-stripblanks">blueprint-compiler/components/playback/playback_info.ui</file>
         <file alias="components/playback/playback_controls.ui" preprocess="xml-stripblanks">blueprint-compiler/components/playback/playback_controls.ui</file>
         <file alias="components/playback/playback_widget.ui" preprocess="xml-stripblanks">blueprint-compiler/components/playback/playback_widget.ui</file>
         <file alias="components/selection/selection_toolbar.ui" preprocess="xml-stripblanks">blueprint-compiler/components/selection/selection_toolbar.ui</file>
+        <!--pages-->
+        <file alias="pages/home.ui" preprocess="xml-stripblanks">blueprint-compiler/pages/home.ui</file>
     </gresource>
 </gresources>
