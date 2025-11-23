@@ -36,9 +36,6 @@ public class PlaybackControlsWidget extends Box {
     @GtkChild(name = "repeat")
     public Button repeatButton;
 
-    @GtkChild(name = "playing_image")
-    public Image playingImage;
-
     public PlaybackControlsWidget() {
         super();
     }
