@@ -7,7 +7,6 @@ import org.gnome.glib.GError;
 import org.gnome.glib.GLib;
 import org.javagi.base.Out;
 
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -17,7 +16,6 @@ public class GstBackend {
 
     private final Element playbin;
     private final Consumer<Playback.Action> dispatcher;
-    @SuppressWarnings("FieldCanBeLocal")
     private final Element fakesink;
 
     public GstBackend(Consumer<Playback.Action> dispatcher) {
@@ -35,6 +33,10 @@ public class GstBackend {
         setupBus();
     }
 
+    /**
+     * <a href="https://gitlab.com/esiqveland/subsound-gtk/-/blob/217ba95ef9e8a39a99ff0126d09bf7f68a47928c/src/main/java/com/github/subsound/sound/PlaybinPlayer.java">sorse</a> <br>
+     * See: <a href="https://java-gi.org/javadoc/org/freedesktop/gstreamer/gst/Bus.html">Bus</a>
+     */
     private void setupBus() {
         Bus bus = playbin.getBus();
         if (bus == null) {
@@ -42,55 +44,34 @@ public class GstBackend {
             return;
         }
 
-        bus.connect(
-                "message", (Bus.MessageCallback) (Message msg) -> {
-                    Set<MessageType> msgTypes = msg.readType();
-                    GLib.idleAdd(
-                            GLib.PRIORITY_DEFAULT_IDLE, () -> {
-                                GstBackend.this.processBusMessageOnMainThread(msgTypes, msg);
-                                return false;
-                            }
-                    );
-                }
-        );
-
         bus.addSignalWatch();
-    }
 
-    /**
-     * <a href="https://gitlab.com/esiqveland/subsound-gtk/-/blob/217ba95ef9e8a39a99ff0126d09bf7f68a47928c/src/main/java/com/github/subsound/sound/PlaybinPlayer.java">sorse</a>
-     */
-    @SuppressWarnings("StatementWithEmptyBody")
-    private void processBusMessageOnMainThread(Set<MessageType> msgTypes, Message msg) {
-        if (msgTypes.contains(MessageType.ERROR)) {
-            Out<GError> errorOut = new Out<>();
-            Out<String> debugOut = new Out<>();
-            msg.parseError(errorOut, debugOut);
+        bus.connect("message", (Bus.MessageCallback) (Message msg) -> {
+            if (msg == null) return;
 
-            GError error = errorOut.get();
-            String debug = debugOut.get();
+            // Retrieve the message type synchronously
+            Set<MessageType> msgTypes = msg.readType();
+            if (msgTypes == null) return;
 
-            GLib.printerr("Error: %s\nDebug: %s\n", error != null ? error.readMessage() : "Unknown Error", debug);
-            dispatcher.accept(new Playback.Action.Stop());
-        } else if (msgTypes.contains(MessageType.EOS)) {
-            dispatcher.accept(new Playback.Action.SongFinished());
-        } else if (msgTypes.containsAll(List.of(
-                MessageType.ASYNC_DONE,
-                MessageType.STREAM_START,
-                MessageType.STATE_CHANGED,
-                MessageType.DURATION_CHANGED
-        ))) {
-            dispatcher.accept(new Playback.Action.Seek(0));
-        } else if (msgTypes.contains(MessageType.BUFFERING)) {
-            Out<Integer> percentOut = new Out<>();
-            msg.parseBuffering(percentOut);
-            int percent = percentOut.get();
-            log.info("Player: Got Event Type: {}, percent: {}", MessageType.BUFFERING.name(), percent);
-        } else if (msgTypes.contains(MessageType.TOC)) {
-            //TODO handle event if needed
-        } else if (msgTypes.contains(MessageType.TAG)) {
-            //TODO handle event if needed
-        }
+            if (msgTypes.contains(MessageType.EOS)) {
+                log.debug("EOS received");
+                GLib.idleAdd(GLib.PRIORITY_DEFAULT_IDLE, () -> {
+                    dispatcher.accept(new Playback.Action.SongFinished());
+                    return false;
+                });
+            } else if (msgTypes.contains(MessageType.ERROR)) {
+                Out<GError> errorOut = new Out<>();
+                Out<String> debugOut = new Out<>();
+                msg.parseError(errorOut, debugOut);
+                String errorMsg = errorOut.get() != null ? errorOut.get().readMessage() : "Unknown Error";
+                String debugMsg = debugOut.get();
+                log.error("GStreamer Error: {} - Debug: {}", errorMsg, debugMsg);
+                GLib.idleAdd(GLib.PRIORITY_DEFAULT_IDLE, () -> {
+                    dispatcher.accept(new Playback.Action.Stop());
+                    return false;
+                });
+            }
+        });
     }
 
     public void setUri(String uri) {
@@ -113,10 +94,9 @@ public class GstBackend {
     @SuppressWarnings("unused")
     public long queryPosition() {
         Out<Long> positionOut = new Out<>();
-        playbin.queryPosition(Format.TIME, positionOut);
-
-        if (positionOut.get() != null) {
-            return TimeUnit.NANOSECONDS.toSeconds(positionOut.get());
+        if (playbin.queryPosition(Format.TIME, positionOut)) {
+            Long pos = positionOut.get();
+            return pos != null ? TimeUnit.NANOSECONDS.toSeconds(pos) : 0;
         }
         return 0;
     }
@@ -124,9 +104,9 @@ public class GstBackend {
     @SuppressWarnings("unused")
     public long queryDuration() {
         Out<Long> durationOut = new Out<>();
-        playbin.queryDuration(Format.TIME, durationOut);
-        if (durationOut.get() != null) {
-            return TimeUnit.NANOSECONDS.toSeconds(durationOut.get());
+        if (playbin.queryDuration(Format.TIME, durationOut)) {
+            Long dur = durationOut.get();
+            return dur != null ? TimeUnit.NANOSECONDS.toSeconds(dur) : 0;
         }
         return 0;
     }
