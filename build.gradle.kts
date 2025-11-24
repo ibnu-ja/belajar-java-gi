@@ -84,12 +84,11 @@ mesonExt.configurations.forEach { (configName, config) ->
     }
 }
 
-tasks.named("shadowJar") {
+tasks.named("classes") {
     dependsOn("compileResources")
 }
 
 tasks.named<JavaExec>("run") {
-    dependsOn("compileResources")
     args(
         "Hypersonic",
     )
