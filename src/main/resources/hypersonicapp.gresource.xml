@@ -11,5 +11,8 @@
         <file alias="components/sidebar/sidebar_row.ui" preprocess="xml-stripblanks">blueprint-compiler/components/sidebar/sidebar_row.ui</file>
         <!--pages-->
         <file alias="pages/home.ui" preprocess="xml-stripblanks">blueprint-compiler/pages/home.ui</file>
+        <!--icons-->
+        <file preprocess="xml-stripblanks">icons/scalable/actions/library-album-symbolic.svg</file>
+        <file preprocess="xml-stripblanks">icons/scalable/actions/library-music-symbolic.svg</file>
     </gresource>
 </gresources>

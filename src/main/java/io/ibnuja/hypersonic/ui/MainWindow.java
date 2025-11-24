@@ -117,9 +117,9 @@ public class MainWindow extends ApplicationWindow {
         List<SidebarItem> items = List.of(
                 new SidebarItem("Home", new Route.Home(), "user-home-symbolic"),
                 new SidebarItem("Now Playing", new Route.NowPlaying()),
-                new SidebarItem("Albums", new Route.Album()),
+                new SidebarItem("Albums", new Route.Album(), "library-album-symbolic"),
                 new SidebarItem("Artists", new Route.Artists()),
-                new SidebarItem("Songs", new Route.Songs())
+                new SidebarItem("Songs", new Route.Songs(), "library-music-symbolic")
         );
 
         for (SidebarItem item : items) {
