@@ -1,6 +1,7 @@
 package io.ibnuja.hypersonic.navigation;
 
 import io.ibnuja.hypersonic.ui.pages.HomePage;
+import org.gnome.adw.NavigationPage;
 import org.gnome.gtk.*;
 
 import java.util.function.Consumer;
@@ -14,8 +15,8 @@ public class ScreenFactory {
         this.navigator = navigator;
     }
 
-    public Widget create(Route route) {
-        return switch (route) {
+    public NavigationPage create(Route route) {
+        Widget content = switch (route) {
             case Route.Home _ -> new HomePage();
             case Route.NowPlaying _ -> createPlaceholder("Now Playing");
             case Route.Album _ -> createAlbumPage();
@@ -23,6 +24,14 @@ public class ScreenFactory {
             case Route.Songs _ -> createPlaceholder("Songs");
             case Route.AlbumRecentlyAdded _ -> createPlaceholder("Recently Added Albums");
         };
+
+        // Wrap the widget in an AdwNavigationPage
+        var page = new NavigationPage();
+        page.setChild(content);
+        page.setTag(route.id());
+        page.setTitle(route.name());
+
+        return page;
     }
 
     private Widget createAlbumPage() {
@@ -45,15 +54,23 @@ public class ScreenFactory {
         return box;
     }
 
-    private Widget createPlaceholder(String text) {
-        Label label = new Label(text);
-        label.setHexpand(true);
-        label.setVexpand(true);
-        label.setHalign(Align.CENTER);
-        label.setValign(Align.CENTER);
+    // Example in ScreenFactory.java
+    private Widget createPlaceholder(String title) {
+        // We need a ToolbarView to hold the HeaderBar + Content
+        var toolbarView = new org.gnome.adw.ToolbarView();
 
-        Box box = new Box(Orientation.VERTICAL, 0);
-        box.append(label);
-        return box;
+        // 1. Add the HeaderBar (Handles the Back Button automatically)
+        var headerBar = new org.gnome.adw.HeaderBar();
+        toolbarView.addTopBar(headerBar);
+
+        // 2. The Content
+        var box = new Box(Orientation.VERTICAL, 0);
+        box.setHalign(Align.CENTER);
+        box.setValign(Align.CENTER);
+        box.append(new Label(title));
+
+        toolbarView.setContent(box);
+
+        return toolbarView;
     }
 }
