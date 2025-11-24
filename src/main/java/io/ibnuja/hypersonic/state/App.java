@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 
+import static io.ibnuja.hypersonic.navigation.Route.*;
+
 @SuppressWarnings("LombokGetterMayBeUsed")
 public class App implements UpdatableState<App.Action, App.Event> {
 
@@ -30,7 +32,7 @@ public class App implements UpdatableState<App.Action, App.Event> {
     private final Deque<Route> navigationStack = new ArrayDeque<>();
 
     public App() {
-        navigationStack.push(new Route.Home());
+        navigationStack.push(Routes.HOME);
     }
 
     public Deque<Route> getNavigationStack() {

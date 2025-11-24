@@ -1,80 +1,25 @@
 package io.ibnuja.hypersonic.navigation;
 
-public sealed interface Route permits Route.Home, Route.Album, Route.Artists, Route.Songs, Route.NowPlaying, Route.AlbumRecentlyAdded {
-
-    String name();
+public sealed interface Route permits Route.Routes {
 
     String id();
 
-    record Home() implements Route {
-        @Override
-        public String name() {
-            return "Home";
+    enum Routes implements Route {
+        HOME("home"),
+        NOW_PLAYING("now_playing"),
+        ALBUM("album"),
+        ARTISTS("artists"),
+        SONGS("songs"),
+        ALBUM_RECENTLY_ADDED("album_recently_added");
+
+        private final String id;
+
+        Routes(String id) {
+            this.id = id;
         }
 
-        @Override
         public String id() {
-            return "home";
-        }
-    }
-
-    record NowPlaying() implements Route {
-        @Override
-        public String name() {
-            return "Now Playing";
-        }
-
-        @Override
-        public String id() {
-            return "now_playing";
-        }
-    }
-
-    record Album() implements Route {
-        @Override
-        public String id() {
-            return "album";
-        }
-
-        @Override
-        public String name() {
-            return "Album";
-        }
-    }
-
-    record Artists() implements Route {
-        @Override
-        public String name() {
-            return "Artist";
-        }
-
-        @Override
-        public String id() {
-            return "artists";
-        }
-    }
-
-    record Songs() implements Route {
-        @Override
-        public String name() {
-            return "Songs";
-        }
-
-        @Override
-        public String id() {
-            return "songs";
-        }
-    }
-
-    record AlbumRecentlyAdded() implements Route {
-        @Override
-        public String name() {
-            return "Recently Added Album";
-        }
-
-        @Override
-        public String id() {
-            return "album_recently_added";
+            return id;
         }
     }
 }

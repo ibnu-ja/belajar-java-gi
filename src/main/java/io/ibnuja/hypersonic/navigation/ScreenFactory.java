@@ -6,6 +6,8 @@ import org.gnome.gtk.*;
 
 import java.util.function.Consumer;
 
+import static io.ibnuja.hypersonic.navigation.Route.*;
+
 @SuppressWarnings("ClassCanBeRecord")
 public class ScreenFactory {
 
@@ -16,22 +18,26 @@ public class ScreenFactory {
     }
 
     public NavigationPage create(Route route) {
-        Widget content = switch (route) {
-            case Route.Home _ -> new HomePage();
-            case Route.NowPlaying _ -> createPlaceholder("Now Playing");
-            case Route.Album _ -> createAlbumPage();
-            case Route.Artists _ -> createPlaceholder("Artists");
-            case Route.Songs _ -> createPlaceholder("Songs");
-            case Route.AlbumRecentlyAdded _ -> createPlaceholder("Recently Added Albums");
-        };
+        if (route instanceof Route.Routes) {
+            Widget content = switch (route) {
+                case Routes.HOME -> new HomePage();
+                case Routes.NOW_PLAYING -> createPlaceholder("Now Playing");
+                case Routes.ALBUM -> createAlbumPage();
+                case Routes.ARTISTS -> createPlaceholder("Artists");
+                case Routes.SONGS -> createPlaceholder("Songs");
+                case Routes.ALBUM_RECENTLY_ADDED -> createPlaceholder("Recently Added Albums");
+            };
 
-        // Wrap the widget in an AdwNavigationPage
-        var page = new NavigationPage();
-        page.setChild(content);
-        page.setTag(route.id());
-        page.setTitle(route.name());
+            // Wrap the widget in an AdwNavigationPage
+            var page = new NavigationPage();
+            page.setChild(content);
+            page.setTag(route.id());
+            page.setTitle(route.id());
 
-        return page;
+            return page;
+        } else {
+            throw new IllegalArgumentException("Invalid route: " + route);
+        }
     }
 
     private Widget createAlbumPage() {
@@ -48,7 +54,7 @@ public class ScreenFactory {
         Button button = new Button();
         button.setLabel("Go to Recently Added");
         button.addCssClass("pill");
-        button.onClicked(() -> navigator.accept(new Route.AlbumRecentlyAdded()));
+        button.onClicked(() -> navigator.accept(Routes.ALBUM_RECENTLY_ADDED));
         box.append(button);
 
         return box;

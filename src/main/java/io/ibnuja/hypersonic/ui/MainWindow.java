@@ -3,6 +3,7 @@ package io.ibnuja.hypersonic.ui;
 import io.ibnuja.hypersonic.Hypersonic;
 import io.ibnuja.hypersonic.model.AppModel;
 import io.ibnuja.hypersonic.navigation.Route;
+import io.ibnuja.hypersonic.navigation.Route.Routes;
 import io.ibnuja.hypersonic.navigation.ScreenFactory;
 import io.ibnuja.hypersonic.state.App;
 import io.ibnuja.hypersonic.trait.Dispatcher;
@@ -55,7 +56,7 @@ public class MainWindow extends ApplicationWindow {
         };
         this.screenFactory = new ScreenFactory(route -> dispatcher.dispatch(new App.Action.Navigate(route)));
         setApplication(app);
-        updateNavigationRoot(new Route.Home());
+        updateNavigationRoot(Routes.HOME);
         setupSidebar();
     }
 
@@ -112,11 +113,11 @@ public class MainWindow extends ApplicationWindow {
 
     private void setupSidebar() {
         List<SidebarItem> items = List.of(
-                new SidebarItem("Home", new Route.Home(), "user-home-symbolic"),
-                new SidebarItem("Now Playing", new Route.NowPlaying()),
-                new SidebarItem("Albums", new Route.Album(), "library-album-symbolic"),
-                new SidebarItem("Artists", new Route.Artists()),
-                new SidebarItem("Songs", new Route.Songs(), "library-music-symbolic")
+                new SidebarItem("Home", Routes.HOME, "user-home-symbolic"),
+                new SidebarItem("Now Playing", Routes.NOW_PLAYING),
+                new SidebarItem("Albums", Routes.ALBUM, "library-album-symbolic"),
+                new SidebarItem("Artists", Routes.ARTISTS),
+                new SidebarItem("Songs", Routes.SONGS, "library-music-symbolic")
         );
 
         for (SidebarItem item : items) {
