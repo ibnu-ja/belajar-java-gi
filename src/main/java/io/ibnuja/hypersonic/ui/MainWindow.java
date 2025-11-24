@@ -24,7 +24,7 @@ import org.javagi.gtk.annotations.GtkTemplate;
 
 import java.util.List;
 
-@GtkTemplate(ui = "/io/ibnuja/hypersonic/window.ui", name = "MainWindow")
+@GtkTemplate(ui = "/io/ibnuja/Hypersonic/window.ui", name = "MainWindow")
 @SuppressWarnings({"java:S110", "java:S112", "java:S125"})
 @EqualsAndHashCode(callSuper = true)
 @Slf4j

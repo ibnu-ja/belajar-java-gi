@@ -12,7 +12,7 @@ import java.lang.foreign.MemorySegment;
 
 @SuppressWarnings("java:S110")
 @EqualsAndHashCode(callSuper = true)
-@GtkTemplate(name = "SelectionToolbarWidget", ui = "/io/ibnuja/hypersonic/components/selection/selection_toolbar.ui")
+@GtkTemplate(name = "SelectionToolbarWidget", ui = "/io/ibnuja/Hypersonic/components/selection/selection_toolbar.ui")
 public class SelectionToolbarWidget extends Box {
 
     @GtkChild(name = "action_bar")

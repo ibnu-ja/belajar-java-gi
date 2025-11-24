@@ -9,7 +9,7 @@ import org.javagi.gtk.annotations.GtkTemplate;
 
 import java.lang.foreign.MemorySegment;
 
-@GtkTemplate(name = "SidebarRow", ui = "/io/ibnuja/hypersonic/components/sidebar/sidebar_row.ui")
+@GtkTemplate(name = "SidebarRow", ui = "/io/ibnuja/Hypersonic/components/sidebar/sidebar_row.ui")
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("java:S110")
 public class SidebarRow extends ListBoxRow {
