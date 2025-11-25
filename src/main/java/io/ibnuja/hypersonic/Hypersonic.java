@@ -9,15 +9,18 @@ import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfoWidget;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
+import io.ibnuja.hypersonic.ui.components.sidebar.SidebarRow;
 import io.ibnuja.hypersonic.ui.pages.HomePage;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
+import org.gnome.gdk.Display;
 import org.gnome.gdkpixbuf.Pixbuf;
 import org.gnome.gio.ApplicationFlags;
 import org.gnome.gio.File;
 import org.gnome.gio.Resource;
 import org.gnome.gio.SimpleAction;
 import org.gnome.glib.Variant;
+import org.gnome.gtk.IconTheme;
 import org.gnome.gtk.Window;
 import org.javagi.base.GErrorException;
 import org.javagi.base.Out;
@@ -69,6 +72,7 @@ public class Hypersonic {
             TemplateTypes.register(PlaybackInfoWidget.class);
             TemplateTypes.register(PlaybackControlsWidget.class);
             TemplateTypes.register(SelectionToolbarWidget.class);
+            TemplateTypes.register(SidebarRow.class);
 
             TemplateTypes.register(HomePage.class);
 
@@ -96,6 +100,14 @@ public class Hypersonic {
 
         @Override
         public void activate() {
+            Display display = Display.getDefault();
+            if (display != null) {
+                IconTheme theme = IconTheme.getForDisplay(display);
+                theme.addResourcePath("/io/ibnuja/Hypersonic/icons");
+            } else {
+                log.error("Display.getDefault() returned null inside activate()!");
+            }
+
             MainWindow win;
             List<Window> windows = super.getWindows();
             if (!windows.isEmpty()) {

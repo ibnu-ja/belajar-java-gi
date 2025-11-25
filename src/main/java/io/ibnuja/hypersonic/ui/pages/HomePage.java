@@ -6,7 +6,7 @@ import org.javagi.gtk.annotations.GtkTemplate;
 
 import java.lang.foreign.MemorySegment;
 
-@GtkTemplate(name = "HomePage", ui = "/io/ibnuja/hypersonic/pages/home.ui")
+@GtkTemplate(name = "HomePage", ui = "/io/ibnuja/Hypersonic/pages/home.ui")
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("java:S110")
 public class HomePage extends Box {

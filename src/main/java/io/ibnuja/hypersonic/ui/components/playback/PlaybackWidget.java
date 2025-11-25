@@ -11,7 +11,7 @@ import java.lang.foreign.MemorySegment;
 
 @SuppressWarnings("java:S110")
 @EqualsAndHashCode(callSuper = true)
-@GtkTemplate(name = "PlaybackWidget", ui = "/io/ibnuja/hypersonic/components/playback/playback_widget.ui")
+@GtkTemplate(name = "PlaybackWidget", ui = "/io/ibnuja/Hypersonic/components/playback/playback_widget.ui")
 public class PlaybackWidget extends Box {
 
     @GtkChild

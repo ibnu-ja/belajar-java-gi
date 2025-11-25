@@ -18,7 +18,7 @@ import java.lang.foreign.MemorySegment;
 @SuppressWarnings("java:S110")
 @Slf4j
 @EqualsAndHashCode(callSuper = true)
-@GtkTemplate(name = "PlaybackControlsWidget", ui = "/io/ibnuja/hypersonic/components/playback/playback_controls.ui")
+@GtkTemplate(name = "PlaybackControlsWidget", ui = "/io/ibnuja/Hypersonic/components/playback/playback_controls.ui")
 public class PlaybackControlsWidget extends Box {
 
     @GtkChild(name = "shuffle")

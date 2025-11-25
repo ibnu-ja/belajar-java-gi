@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @SuppressWarnings("java:S110")
 @EqualsAndHashCode(callSuper = true)
-@GtkTemplate(name = "PlaybackInfoWidget", ui = "/io/ibnuja/hypersonic/components/playback/playback_info.ui")
+@GtkTemplate(name = "PlaybackInfoWidget", ui = "/io/ibnuja/Hypersonic/components/playback/playback_info.ui")
 public class PlaybackInfoWidget extends Button {
 
     @GtkChild(name = "current_song_info")
