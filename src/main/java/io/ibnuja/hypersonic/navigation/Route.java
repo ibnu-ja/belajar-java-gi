@@ -1,10 +1,11 @@
-// src/main/java/io/ibnuja/hypersonic/navigation/Route.java
 package io.ibnuja.hypersonic.navigation;
 
 import io.ibnuja.hypersonic.Hypersonic;
 import io.ibnuja.hypersonic.ui.pages.HomePage;
 import io.ibnuja.hypersonic.ui.pages.PlaceholderPage;
+import org.gnome.adw.HeaderBar;
 import org.gnome.adw.NavigationPage;
+import org.gnome.adw.ToolbarView;
 import org.gnome.gtk.*;
 
 public sealed interface Route permits Route.Routes {
@@ -44,9 +45,7 @@ public sealed interface Route permits Route.Routes {
 
         @Override
         public NavigationPage page() {
-            // "Zero Boilerplate": The enum knows how to create its own page.
             return switch (this) {
-                // Ensure HomePage extends NavigationPage (see Step 2)
                 case HOME -> new HomePage();
 
                 case ALBUM -> {
@@ -70,13 +69,18 @@ public sealed interface Route permits Route.Routes {
                     button.onClicked(() -> Hypersonic.navigate(Routes.ALBUM_RECENTLY_ADDED));
                     box.append(button);
 
-                    page.setChild(box);
+                    var toolbarView = new ToolbarView();
+                    var headerBar = new HeaderBar();
+                    toolbarView.addTopBar(headerBar);
+                    toolbarView.setContent(box);
+
+                    page.setChild(toolbarView);
 
 
                     yield page;
                 }
 
-                // Helper for pages you haven't built yet
+                // Helper for pages that haven't built yet
                 default -> new PlaceholderPage(this);
             };
         }
