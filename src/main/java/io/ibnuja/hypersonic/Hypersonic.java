@@ -94,8 +94,6 @@ public class Hypersonic {
             TemplateTypes.register(SelectionToolbarWidget.class);
             TemplateTypes.register(SidebarRow.class);
 
-            TemplateTypes.register(HomePage.class);
-
             Resource resource;
             if (in != null) {
                 resource = Resource.fromData(in.readAllBytes());
