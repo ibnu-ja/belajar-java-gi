@@ -27,10 +27,44 @@ val subsonicApiVersion = "1.1.1"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/eap")
 }
 
 val localPrefix = "${System.getProperty("user.home")}/.local"
+val generatedDir = layout.buildDirectory.dir("generated/sources/config")
+
+sourceSets {
+    main {
+        java {
+            srcDir(generatedDir)
+        }
+    }
+}
+
+val generateConfig by tasks.registering {
+    val outputFile = generatedDir.get().file("io/ibnuja/hypersonic/Config.java").asFile
+    outputs.file(outputFile)
+
+    doLast {
+        outputFile.parentFile.mkdirs()
+        outputFile.writeText("""
+            package io.ibnuja.hypersonic;
+
+            public class Config {
+                public static final String LOCALE_DIR = "$localPrefix/share/locale";
+            }
+        """.trimIndent())
+    }
+}
+
+tasks.named("compileJava") {
+    dependsOn(generateConfig)
+}
+
+tasks.named("compileKotlin") {
+    dependsOn(generateConfig)
+}
 
 meson {
     configuration("linux-amd64") {
@@ -47,6 +81,7 @@ java {
 }
 
 tasks.named<MesonSetupTask>("mesonSetup") {
+    group = "Build Setup"
     dependsOn("shadowJar")
 }
 
@@ -58,7 +93,7 @@ val mesonExt = extensions.getByType<MesonPluginExtension>()
 val mesonInstall = tasks.register("mesonInstall") {
     group = "build"
     description = "Installs all enabled Meson configurations"
-    dependsOn("mesonSetup", "shadowJar")
+    dependsOn("mesonSetup", "mesonCompile", "shadowJar")
 }
 
 mesonExt.configurations.forEach { (configName, config) ->

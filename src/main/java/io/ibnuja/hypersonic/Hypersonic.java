@@ -66,6 +66,11 @@ public class Hypersonic {
 
         ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
 
+        String appId = "hypersonic";
+        Intl.bindtextdomain(appId, Config.LOCALE_DIR);
+
+        Intl.textdomain(appId);
+
         try {
             var result = ConnectionState.INSTANCE.getApi().getRandomSongs(1);
             if (!result.getRandomSongs().getSong().isEmpty()) {

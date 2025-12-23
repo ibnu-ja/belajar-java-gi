@@ -1,0 +1,5 @@
+msgid "Welcome to Hypersonic!"
+msgstr "Selamat datang di Hypersonic!"
+
+msgid "Home"
+msgstr "Beranda"
