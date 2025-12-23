@@ -1,21 +1,21 @@
 package io.ibnuja.hypersonic.ui.pages;
 
 import lombok.EqualsAndHashCode;
-import org.gnome.gtk.Box;
+import org.gnome.adw.NavigationPage;
+import org.gnome.gtk.Label;
 import org.javagi.gtk.annotations.GtkTemplate;
-
-import java.lang.foreign.MemorySegment;
 
 @GtkTemplate(name = "HomePage", ui = "/io/ibnuja/Hypersonic/pages/home.ui")
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("java:S110")
-public class HomePage extends Box {
+public class HomePage extends NavigationPage {
 
     public HomePage() {
-        super();
-    }
+        setTitle("Home");
+        setTag("home");
 
-    public HomePage(MemorySegment address) {
-        super(address);
+        var label = new Label("Welcome to Hypersonic!");
+        label.addCssClass("title-1");
+        setChild(label);
     }
 }

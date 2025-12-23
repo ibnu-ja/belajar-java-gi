@@ -35,14 +35,6 @@ public class App implements UpdatableState<App.Action, App.Event> {
         navigationStack.push(Routes.HOME);
     }
 
-    public Deque<Route> getNavigationStack() {
-        return navigationStack;
-    }
-
-    public Route getCurrentRoute() {
-        return navigationStack.peek();
-    }
-
     @Override
     public List<Event> update(Action action) {
         return switch (action) {

@@ -1,6 +1,9 @@
 package io.ibnuja.hypersonic;
 
 import io.ibnuja.hypersonic.audio.AudioPlayer;
+import io.ibnuja.hypersonic.model.AppModel;
+import io.ibnuja.hypersonic.navigation.Route;
+import io.ibnuja.hypersonic.state.App;
 import io.ibnuja.hypersonic.state.ConnectionState;
 import io.ibnuja.hypersonic.state.Playback;
 import io.ibnuja.hypersonic.ui.MainWindow;
@@ -34,9 +37,19 @@ import java.util.List;
 @SuppressWarnings({"java:S1118", "java:S125"})
 public class Hypersonic {
 
-    @SuppressWarnings({"java:S1444", "java:S1104"})
+    @SuppressWarnings({"java:S1444", "java:S1104", "java:S1135"})
     //TODO use a proper singleton pattern
     public static AudioPlayer audioPlayer;
+
+    public static final AppModel appModel = new AppModel();
+    public static void navigate(Route route) {
+        appModel.dispatch(new App.Action.Navigate(route));
+    }
+
+    @SuppressWarnings("unused")
+    public static void back() {
+        appModel.dispatch(new App.Action.NavigateBack());
+    }
 
     static void main(String[] args) throws GErrorException {
         LoggingBootstrap.init();

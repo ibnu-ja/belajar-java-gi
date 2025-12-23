@@ -1,12 +1,8 @@
 package io.ibnuja.hypersonic.ui;
 
 import io.ibnuja.hypersonic.Hypersonic;
-import io.ibnuja.hypersonic.model.AppModel;
-import io.ibnuja.hypersonic.navigation.Route;
 import io.ibnuja.hypersonic.navigation.Route.Routes;
-import io.ibnuja.hypersonic.navigation.ScreenFactory;
 import io.ibnuja.hypersonic.state.App;
-import io.ibnuja.hypersonic.trait.Dispatcher;
 import io.ibnuja.hypersonic.ui.components.sidebar.SidebarItem;
 import io.ibnuja.hypersonic.ui.components.sidebar.SidebarRow;
 import lombok.EqualsAndHashCode;
@@ -39,33 +35,23 @@ public class MainWindow extends ApplicationWindow {
     @GtkChild(name = "home_listbox")
     public ListBox homeListBox;
 
-    private final AppModel appModel;
-    private final ScreenFactory screenFactory;
-    private final Dispatcher<App.Action> dispatcher;
-
     protected Settings settings;
 
     public MainWindow(Hypersonic.Application app) {
-        this.appModel = new AppModel();
-        this.dispatcher = (App.Action action) -> {
-            log.debug("Dispatching Action: {}", action);
-            List<App.Event> events = appModel.update(action);
-            for (App.Event event : events) {
-                handleEvent(event);
-            }
-        };
-        this.screenFactory = new ScreenFactory(route -> dispatcher.dispatch(new App.Action.Navigate(route)));
         setApplication(app);
-        updateNavigationRoot(Routes.HOME);
+        Hypersonic.appModel.addListener(this::handleEvent);
+        navigationView.replace(List.of(Routes.HOME.page()).toArray(NavigationPage[]::new));
         setupSidebar();
     }
 
+    //register.map Event
     private void handleEvent(App.Event event) {
-        log.debug("[MainWindow.screenFactory] Handling Event: {}", event);
+        if (splitView.getCollapsed()) {
+            splitView.setShowContent(true);
+        }
         switch (event) {
             case App.Event.NavigationPushed(var route) -> {
-                var page = screenFactory.create(route);
-                navigationView.push(page);
+                navigationView.push(route.page());
                 logStackLevel("After Push");
             }
             case App.Event.NavigationPopped _ -> {
@@ -73,18 +59,9 @@ public class MainWindow extends ApplicationWindow {
                 logStackLevel("After Pop");
             }
             case App.Event.NavigationReset(var route) -> {
-                updateNavigationRoot(route);
-                logStackLevel("After Reset");
+                navigationView.replace(List.of(route.page()).toArray(NavigationPage[]::new));
+                logStackLevel("Reset");
             }
-        }
-    }
-
-    private void updateNavigationRoot(Route route) {
-        NavigationPage page = screenFactory.create(route);
-        navigationView.replace(List.of(page).toArray(NavigationPage[]::new));
-
-        if (splitView.getCollapsed()) {
-            splitView.setShowContent(true);
         }
     }
 
@@ -107,10 +84,7 @@ public class MainWindow extends ApplicationWindow {
         settings = new Settings("io.ibnuja.Hypersonic");
     }
 
-    public void pop() {
-        navigationView.pop();
-    }
-
+    @SuppressWarnings("java:S1602")
     private void setupSidebar() {
         List<SidebarItem> items = List.of(
                 new SidebarItem("Home", Routes.HOME, "user-home-symbolic"),
@@ -133,7 +107,7 @@ public class MainWindow extends ApplicationWindow {
                         .filter(i -> i.title().equals(title))
                         .findFirst()
                         .ifPresent(i -> {
-                            dispatcher.dispatch(new App.Action.ResetNavigation(i.route()));
+                            navigationView.replace(List.of(i.route().page()).toArray(NavigationPage[]::new));
                         });
             }
         });
