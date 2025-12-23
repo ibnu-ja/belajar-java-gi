@@ -28,6 +28,7 @@ import org.gnome.gtk.Window;
 import org.javagi.base.GErrorException;
 import org.javagi.base.Out;
 import org.javagi.gtk.types.TemplateTypes;
+import org.javagi.util.Intl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +43,7 @@ public class Hypersonic {
     public static AudioPlayer audioPlayer;
 
     public static final AppModel appModel = new AppModel();
+
     public static void navigate(Route route) {
         appModel.dispatch(new App.Action.Navigate(route));
     }
@@ -70,19 +72,19 @@ public class Hypersonic {
         Intl.bindtextdomain(appId, Config.LOCALE_DIR);
 
         Intl.textdomain(appId);
-
-        try {
-            var result = ConnectionState.INSTANCE.getApi().getRandomSongs(1);
-            if (!result.getRandomSongs().getSong().isEmpty()) {
-                var song = result.getRandomSongs().getSong().getFirst();
-
-                // Send Action: Load Song
-                log.info("Loaded song: {}", song);
-                audioPlayer.dispatch(new Playback.Action.LoadSongs(List.of(song)));
-            }
-        } catch (Exception e) {
-            log.error("Failed to fetch songs", e);
-        }
+        ConnectionState.INSTANCE.getApi()
+                .getRandomSongs(1)
+                .thenAccept(result -> {
+                    if (!result.getRandomSongs().getSong().isEmpty()) {
+                        var song = result.getRandomSongs().getSong().getFirst();
+                        log.info("Loaded song: {}", song);
+                        audioPlayer.dispatch(new Playback.Action.LoadSongs(List.of(song)));
+                    }
+                })
+                .exceptionally(e -> {
+                    log.error("Failed to fetch songs", e);
+                    return null;
+                });
 
         try (InputStream in = Hypersonic.class.getResourceAsStream("/hypersonicapp.gresource")) {
             // Register Template Classes
