@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-@GtkTemplate(ui = "/io/ibnuja/hypersonic/components/settings/settings.ui", name = "Settings")
+@GtkTemplate(ui = "/io/ibnuja/Hypersonic/components/settings/settings.ui", name = "Settings")
 @SuppressWarnings({"java:S110", "java:S1192"})
 @EqualsAndHashCode(callSuper = true)
 public class SettingWindow extends PreferencesDialog {

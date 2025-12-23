@@ -1,17 +1,10 @@
 using Gtk 4.0;
+using Adw 1;
 
-template $HomePage : Box {
-  orientation: vertical;
-  halign: center;
-  valign: center;
-
-  Label {
-    label: "Welcome to Hypersonic";
-    styles ["title-1"]
-  }
-
-  Label {
-    label: "Select music from the sidebar to begin";
-    styles ["body"]
-  }
+template $HomePage : Adw.NavigationPage {
+  child: Box {
+    orientation: vertical;
+    halign: center;
+    valign: center;
+  };
 }

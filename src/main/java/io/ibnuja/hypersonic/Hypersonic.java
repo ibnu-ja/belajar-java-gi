@@ -1,6 +1,9 @@
 package io.ibnuja.hypersonic;
 
 import io.ibnuja.hypersonic.audio.AudioPlayer;
+import io.ibnuja.hypersonic.model.AppModel;
+import io.ibnuja.hypersonic.navigation.Route;
+import io.ibnuja.hypersonic.state.App;
 import io.ibnuja.hypersonic.state.ConnectionState;
 import io.ibnuja.hypersonic.state.Playback;
 import io.ibnuja.hypersonic.ui.MainWindow;
@@ -9,15 +12,18 @@ import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfoWidget;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
+import io.ibnuja.hypersonic.ui.components.sidebar.SidebarRow;
 import io.ibnuja.hypersonic.ui.pages.HomePage;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
+import org.gnome.gdk.Display;
 import org.gnome.gdkpixbuf.Pixbuf;
 import org.gnome.gio.ApplicationFlags;
 import org.gnome.gio.File;
 import org.gnome.gio.Resource;
 import org.gnome.gio.SimpleAction;
 import org.gnome.glib.Variant;
+import org.gnome.gtk.IconTheme;
 import org.gnome.gtk.Window;
 import org.javagi.base.GErrorException;
 import org.javagi.base.Out;
@@ -31,9 +37,19 @@ import java.util.List;
 @SuppressWarnings({"java:S1118", "java:S125"})
 public class Hypersonic {
 
-    @SuppressWarnings({"java:S1444", "java:S1104"})
+    @SuppressWarnings({"java:S1444", "java:S1104", "java:S1135"})
     //TODO use a proper singleton pattern
     public static AudioPlayer audioPlayer;
+
+    public static final AppModel appModel = new AppModel();
+    public static void navigate(Route route) {
+        appModel.dispatch(new App.Action.Navigate(route));
+    }
+
+    @SuppressWarnings("unused")
+    public static void back() {
+        appModel.dispatch(new App.Action.NavigateBack());
+    }
 
     static void main(String[] args) throws GErrorException {
         LoggingBootstrap.init();
@@ -69,6 +85,7 @@ public class Hypersonic {
             TemplateTypes.register(PlaybackInfoWidget.class);
             TemplateTypes.register(PlaybackControlsWidget.class);
             TemplateTypes.register(SelectionToolbarWidget.class);
+            TemplateTypes.register(SidebarRow.class);
 
             TemplateTypes.register(HomePage.class);
 
@@ -96,6 +113,14 @@ public class Hypersonic {
 
         @Override
         public void activate() {
+            Display display = Display.getDefault();
+            if (display != null) {
+                IconTheme theme = IconTheme.getForDisplay(display);
+                theme.addResourcePath("/io/ibnuja/Hypersonic/icons");
+            } else {
+                log.error("Display.getDefault() returned null inside activate()!");
+            }
+
             MainWindow win;
             List<Window> windows = super.getWindows();
             if (!windows.isEmpty()) {

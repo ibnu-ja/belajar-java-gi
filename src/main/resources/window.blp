@@ -100,9 +100,7 @@ template $MainWindow: Adw.ApplicationWindow {
           Adw.ToastOverlay main {
             hexpand: true;
             vexpand: true;
-            Stack navigation_stack {
-              transition-type: slide_left_right;
-            }
+            Adw.NavigationView navigation_view {}
           }
         };
       };

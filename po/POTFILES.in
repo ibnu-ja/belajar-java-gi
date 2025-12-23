@@ -9,6 +9,7 @@ src/main/resources/pages/home.blp
 src/main/resources/components/playback/playback_controls.blp
 src/main/resources/components/playback/playback_info.blp
 src/main/resources/components/playback/playback_widget.blp
+src/main/resources/components/sidebar/sidebar_row.blp
 src/main/resources/components/settings/settings.blp
 src/main/resources/components/selection/selection_toolbar.blp
 src/main/resources/window.blp
