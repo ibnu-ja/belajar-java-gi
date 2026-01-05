@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.state
+package io.ibnuja.hypersonic.service.api
 
 import io.ibnuja.hypersonic.SubsonicApi
 import io.ktor.client.*

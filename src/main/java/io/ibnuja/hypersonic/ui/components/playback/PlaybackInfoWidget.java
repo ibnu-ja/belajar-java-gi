@@ -1,7 +1,7 @@
 package io.ibnuja.hypersonic.ui.components.playback;
 
 import io.ibnuja.hypersonic.Hypersonic;
-import io.ibnuja.hypersonic.state.ConnectionState;
+import io.ibnuja.hypersonic.service.api.ConnectionState;
 import io.ibnuja.hypersonic.state.Playback;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;

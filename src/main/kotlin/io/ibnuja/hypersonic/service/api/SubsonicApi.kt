@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic
+package io.ibnuja.hypersonic.service.api
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

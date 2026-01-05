@@ -1,10 +1,10 @@
 package io.ibnuja.hypersonic;
 
-import io.ibnuja.hypersonic.audio.AudioPlayer;
+import io.ibnuja.hypersonic.service.audio.AudioPlayer;
 import io.ibnuja.hypersonic.model.AppModel;
 import io.ibnuja.hypersonic.navigation.Route;
 import io.ibnuja.hypersonic.state.App;
-import io.ibnuja.hypersonic.state.ConnectionState;
+import io.ibnuja.hypersonic.service.api.ConnectionState;
 import io.ibnuja.hypersonic.state.Playback;
 import io.ibnuja.hypersonic.ui.MainWindow;
 import io.ibnuja.hypersonic.ui.components.playback.PlaybackControlsWidget;
@@ -13,7 +13,6 @@ import io.ibnuja.hypersonic.ui.components.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
 import io.ibnuja.hypersonic.ui.components.sidebar.SidebarRow;
-import io.ibnuja.hypersonic.ui.pages.HomePage;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
 import org.gnome.gdk.Display;

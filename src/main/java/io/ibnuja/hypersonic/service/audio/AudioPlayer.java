@@ -1,6 +1,6 @@
-package io.ibnuja.hypersonic.audio;
+package io.ibnuja.hypersonic.service.audio;
 
-import io.ibnuja.hypersonic.state.ConnectionState;
+import io.ibnuja.hypersonic.service.api.ConnectionState;
 import io.ibnuja.hypersonic.state.Playback;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
