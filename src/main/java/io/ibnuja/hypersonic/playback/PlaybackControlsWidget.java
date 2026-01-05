@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.ui.components.playback;
+package io.ibnuja.hypersonic.playback;
 
 import io.ibnuja.hypersonic.Hypersonic;
 import io.ibnuja.hypersonic.state.Playback;
@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.gtk.Box;
 import org.gnome.gtk.Button;
-import org.gnome.gtk.Image;
 import org.gnome.gtk.ToggleButton;
 import org.javagi.gobject.annotations.InstanceInit;
 import org.javagi.gtk.annotations.GtkChild;

@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.ui.components.playback;
+package io.ibnuja.hypersonic.playback;
 
 import lombok.EqualsAndHashCode;
 import org.gnome.gtk.Box;

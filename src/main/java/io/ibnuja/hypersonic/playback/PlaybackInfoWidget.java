@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.ui.components.playback;
+package io.ibnuja.hypersonic.playback;
 
 import io.ibnuja.hypersonic.Hypersonic;
 import io.ibnuja.hypersonic.service.api.ConnectionState;
