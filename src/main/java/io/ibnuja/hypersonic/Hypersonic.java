@@ -1,18 +1,12 @@
 package io.ibnuja.hypersonic;
 
-import io.ibnuja.hypersonic.service.audio.AudioPlayer;
-import io.ibnuja.hypersonic.model.AppModel;
-import io.ibnuja.hypersonic.navigation.Route;
-import io.ibnuja.hypersonic.state.App;
-import io.ibnuja.hypersonic.service.api.ConnectionState;
-import io.ibnuja.hypersonic.state.Playback;
-import io.ibnuja.hypersonic.ui.MainWindow;
+import io.ibnuja.hypersonic.navigation.selection.SelectionToolbarWidget;
+import io.ibnuja.hypersonic.navigation.settings.SettingWindow;
+import io.ibnuja.hypersonic.navigation.sidebar.SidebarRow;
 import io.ibnuja.hypersonic.playback.PlaybackControlsWidget;
 import io.ibnuja.hypersonic.playback.PlaybackInfoWidget;
 import io.ibnuja.hypersonic.playback.PlaybackWidget;
-import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
-import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
-import io.ibnuja.hypersonic.ui.components.sidebar.SidebarRow;
+import io.ibnuja.hypersonic.service.api.ConnectionState;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
 import org.gnome.gdk.Display;
@@ -38,19 +32,6 @@ import java.util.List;
 public class Hypersonic {
 
     @SuppressWarnings({"java:S1444", "java:S1104", "java:S1135"})
-    //TODO use a proper singleton pattern
-    public static AudioPlayer audioPlayer;
-
-    public static final AppModel appModel = new AppModel();
-
-    public static void navigate(Route route) {
-        appModel.dispatch(new App.Action.Navigate(route));
-    }
-
-    @SuppressWarnings("unused")
-    public static void back() {
-        appModel.dispatch(new App.Action.NavigateBack());
-    }
 
     static void main(String[] args) throws GErrorException {
         LoggingBootstrap.init();
@@ -62,8 +43,6 @@ public class Hypersonic {
                 pixbufFormat.getName(),
                 pixbufFormat.getDescription()
         ));
-
-        audioPlayer = new AudioPlayer();
 
         ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
 
@@ -77,7 +56,7 @@ public class Hypersonic {
                     if (!result.getRandomSongs().getSong().isEmpty()) {
                         var song = result.getRandomSongs().getSong().getFirst();
                         log.info("Loaded song: {}", song);
-                        audioPlayer.dispatch(new Playback.Action.LoadSongs(List.of(song)));
+//                        audioPlayer.dispatch(new Playback.Action.LoadSongs(List.of(song)));
                     }
                 })
                 .exceptionally(e -> {

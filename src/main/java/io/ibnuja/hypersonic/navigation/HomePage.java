@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.ui.pages;
+package io.ibnuja.hypersonic.navigation;
 
 import lombok.EqualsAndHashCode;
 import org.gnome.adw.HeaderBar;

@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.ui.components.selection;
+package io.ibnuja.hypersonic.navigation.selection;
 
 import lombok.EqualsAndHashCode;
 import org.gnome.gtk.ActionBar;

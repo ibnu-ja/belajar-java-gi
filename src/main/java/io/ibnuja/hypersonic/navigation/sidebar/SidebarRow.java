@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.ui.components.sidebar;
+package io.ibnuja.hypersonic.navigation.sidebar;
 
 import lombok.EqualsAndHashCode;
 import org.gnome.gtk.Image;
@@ -26,15 +26,5 @@ public class SidebarRow extends ListBoxRow {
 
     public SidebarRow(MemorySegment address) {
         super(address);
-    }
-
-    public void setItem(SidebarItem item) {
-        title.setLabel(item.title());
-        if (item.iconName() != null) {
-            icon.setFromIconName(item.iconName());
-        } else {
-            icon.setVisible(false);
-        }
-        setTooltipText(item.title());
     }
 }

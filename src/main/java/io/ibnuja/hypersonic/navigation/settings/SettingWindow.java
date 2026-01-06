@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.ui.components.settings;
+package io.ibnuja.hypersonic.navigation.settings;
 
 import org.javagi.gobject.annotations.InstanceInit;
 import org.javagi.gtk.annotations.GtkChild;

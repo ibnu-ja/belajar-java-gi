@@ -1,6 +1,5 @@
 package io.ibnuja.hypersonic.service.audio;
 
-import io.ibnuja.hypersonic.state.Playback;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.*;
 import org.gnome.glib.GError;
@@ -9,17 +8,14 @@ import org.javagi.base.Out;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @Slf4j
 public class GstBackend implements Backend {
 
     private final Element playbin;
-    private final Consumer<Playback.Action> dispatcher;
     private final Element fakesink;
 
-    public GstBackend(Consumer<Playback.Action> dispatcher) {
-        this.dispatcher = dispatcher;
+    public GstBackend() {
         playbin = ElementFactory.make("playbin", "audio-player");
         if (playbin == null) {
             throw new IllegalStateException("Failed to create playbin element");
@@ -58,7 +54,7 @@ public class GstBackend implements Backend {
                         log.debug("EOS received");
                         GLib.idleAdd(
                                 GLib.PRIORITY_DEFAULT_IDLE, () -> {
-                                    dispatcher.accept(new Playback.Action.SongFinished());
+//                                    dispatcher.accept(new Playback.Action.SongFinished());
                                     return false;
                                 }
                         );
@@ -71,7 +67,7 @@ public class GstBackend implements Backend {
                         log.error("GStreamer Error: {} - Debug: {}", errorMsg, debugMsg);
                         GLib.idleAdd(
                                 GLib.PRIORITY_DEFAULT_IDLE, () -> {
-                                    dispatcher.accept(new Playback.Action.Stop());
+//                                    dispatcher.accept(new Playback.Action.Stop());
                                     return false;
                                 }
                         );

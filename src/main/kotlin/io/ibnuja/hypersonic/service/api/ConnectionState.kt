@@ -1,6 +1,5 @@
 package io.ibnuja.hypersonic.service.api
 
-import io.ibnuja.hypersonic.SubsonicApi
 import io.ktor.client.*
 import io.ktor.client.engine.apache5.*
 import ru.stersh.subsonic.api.AuthType
