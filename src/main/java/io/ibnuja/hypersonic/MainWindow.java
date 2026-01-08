@@ -40,7 +40,7 @@ public class MainWindow extends ApplicationWindow {
     public PlaybackWidget playbackWidget;
 
     public MainWindow(Hypersonic.Application app) {
-        log.info("MainWindow constructor");
+        log.trace("MainWindow constructor");
         this.backend = new GstBackend();
         this.api = ConnectionState.INSTANCE.getApi();
         setApplication(app);
