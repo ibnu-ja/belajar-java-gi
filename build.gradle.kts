@@ -21,16 +21,56 @@ val slf4jVersion = "2.0.17"
 val log4jVersion = "2.25.2"
 val junitVersion = "5.10.0"
 val jacksonBomVersion = "2.20.0"
-val javaGiVersion = "0.13.0"
+//FIXME move to 0.14.0 when released
+val javaGiVersion = "0.14.0"
 val ktorVersion = "3.3.2"
 val subsonicApiVersion = "1.1.1"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/eap")
 }
 
 val localPrefix = "${System.getProperty("user.home")}/.local"
+val generatedDir: Provider<Directory> = layout.buildDirectory.dir("generated/sources/config")
+
+sourceSets {
+    main {
+        java {
+            srcDir(generatedDir)
+        }
+    }
+}
+
+val generateConfig by tasks.registering {
+    group = "build"
+    val outputFile = generatedDir.get().file("io/ibnuja/hypersonic/Config.java").asFile
+    outputs.file(outputFile)
+
+    doLast {
+        outputFile.parentFile.mkdirs()
+        outputFile.writeText(
+            """
+            package io.ibnuja.hypersonic;
+
+            public class Config {
+                public static final String LOCALE_DIR = "$localPrefix/share/locale";
+    
+                private Config() {}
+            }
+        """.trimIndent()
+        )
+    }
+}
+
+tasks.named("compileJava") {
+    dependsOn(generateConfig)
+}
+
+tasks.named("compileKotlin") {
+    dependsOn(generateConfig)
+}
 
 meson {
     configuration("linux-amd64") {
@@ -47,6 +87,7 @@ java {
 }
 
 tasks.named<MesonSetupTask>("mesonSetup") {
+    group = "Build Setup"
     dependsOn("shadowJar")
 }
 
@@ -55,10 +96,10 @@ val commonJvmArgs = mutableListOf(
 )
 val mesonExt = extensions.getByType<MesonPluginExtension>()
 
-val mesonInstall = tasks.register("mesonInstall") {
+val mesonInstall = tasks.register<DefaultTask>("mesonInstall") {
     group = "build"
     description = "Installs all enabled Meson configurations"
-    dependsOn("mesonSetup", "shadowJar")
+    dependsOn("mesonSetup", "mesonCompile", "shadowJar")
 }
 
 mesonExt.configurations.forEach { (configName, config) ->
@@ -84,12 +125,11 @@ mesonExt.configurations.forEach { (configName, config) ->
     }
 }
 
-tasks.named("shadowJar") {
+tasks.named("classes") {
     dependsOn("compileResources")
 }
 
 tasks.named<JavaExec>("run") {
-    dependsOn("compileResources")
     args(
         "Hypersonic",
     )
@@ -108,6 +148,7 @@ tasks.register<Exec>("compileBlueprints") {
         "components/playback/playback_controls.blp",
         "components/playback/playback_widget.blp",
         "components/selection/selection_toolbar.blp",
+        "components/sidebar/sidebar_row.blp",
         //pages
         "pages/home.blp",
     )

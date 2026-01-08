@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.ui.components.playback;
+package io.ibnuja.hypersonic.playback;
 
 import lombok.EqualsAndHashCode;
 import org.gnome.gtk.Box;
@@ -11,14 +11,14 @@ import java.lang.foreign.MemorySegment;
 
 @SuppressWarnings("java:S110")
 @EqualsAndHashCode(callSuper = true)
-@GtkTemplate(name = "PlaybackWidget", ui = "/io/ibnuja/hypersonic/components/playback/playback_widget.ui")
+@GtkTemplate(name = "PlaybackWidget", ui = "/io/ibnuja/Hypersonic/components/playback/playback_widget.ui")
 public class PlaybackWidget extends Box {
 
     @GtkChild
-    public PlaybackControlsWidget controls;
+    public ControlsWidget controls;
 
     @GtkChild(name = "now_playing")
-    public PlaybackInfoWidget nowPlaying;
+    public InfoWidget nowPlaying;
 
     @GtkChild(name = "seek_bar")
     public Scale seekBar;
@@ -38,5 +38,9 @@ public class PlaybackWidget extends Box {
 
     public PlaybackWidget(MemorySegment address) {
         super(address);
+    }
+
+    public void setup(PlayerState vm) {
+        controls.setup(vm);
     }
 }

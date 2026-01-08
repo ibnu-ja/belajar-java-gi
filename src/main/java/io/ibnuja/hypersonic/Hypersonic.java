@@ -1,27 +1,29 @@
 package io.ibnuja.hypersonic;
 
-import io.ibnuja.hypersonic.audio.AudioPlayer;
-import io.ibnuja.hypersonic.state.ConnectionState;
-import io.ibnuja.hypersonic.state.Playback;
-import io.ibnuja.hypersonic.ui.MainWindow;
-import io.ibnuja.hypersonic.ui.components.playback.PlaybackControlsWidget;
-import io.ibnuja.hypersonic.ui.components.playback.PlaybackInfoWidget;
-import io.ibnuja.hypersonic.ui.components.playback.PlaybackWidget;
-import io.ibnuja.hypersonic.ui.components.selection.SelectionToolbarWidget;
-import io.ibnuja.hypersonic.ui.components.settings.SettingWindow;
-import io.ibnuja.hypersonic.ui.pages.HomePage;
+import io.ibnuja.hypersonic.navigation.selection.SelectionToolbarWidget;
+import io.ibnuja.hypersonic.navigation.settings.SettingWindow;
+import io.ibnuja.hypersonic.navigation.sidebar.SidebarRow;
+import io.ibnuja.hypersonic.playback.ControlsWidget;
+import io.ibnuja.hypersonic.playback.InfoWidget;
+import io.ibnuja.hypersonic.playback.PlaybackWidget;
+import io.ibnuja.hypersonic.playback.PlayerState;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
+import org.gnome.gdk.Display;
 import org.gnome.gdkpixbuf.Pixbuf;
 import org.gnome.gio.ApplicationFlags;
 import org.gnome.gio.File;
 import org.gnome.gio.Resource;
 import org.gnome.gio.SimpleAction;
 import org.gnome.glib.Variant;
+import org.gnome.gtk.IconTheme;
 import org.gnome.gtk.Window;
 import org.javagi.base.GErrorException;
 import org.javagi.base.Out;
 import org.javagi.gtk.types.TemplateTypes;
+import org.javagi.util.Intl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,46 +33,33 @@ import java.util.List;
 @SuppressWarnings({"java:S1118", "java:S125"})
 public class Hypersonic {
 
-    @SuppressWarnings({"java:S1444", "java:S1104"})
-    //TODO use a proper singleton pattern
-    public static AudioPlayer audioPlayer;
-
+    @SuppressWarnings({"java:S1444", "java:S1104", "java:S1135"})
     static void main(String[] args) throws GErrorException {
         LoggingBootstrap.init();
         Out<String[]> gstArgs = new Out<>(args);
         Gst.init(gstArgs);
 
-        Pixbuf.getFormats().forEach(pixbufFormat -> log.debug(
-                "pixbufFormat supported: {}, {} ",
-                pixbufFormat.getName(),
-                pixbufFormat.getDescription()
-        ));
+        Pixbuf.getFormats().forEach(pixbufFormat -> {
+            assert pixbufFormat != null;
+            log.debug(
+                    "pixbuf Format supported: {}, {} ",
+                    pixbufFormat.getName(),
+                    pixbufFormat.getDescription()
+            );
+        });
 
-        audioPlayer = new AudioPlayer();
+        String appId = "hypersonic";
+        Intl.bindtextdomain(appId, Config.LOCALE_DIR);
 
-        ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
-
-        try {
-            var result = ConnectionState.INSTANCE.getApi().getRandomSongs(1);
-            if (!result.getRandomSongs().getSong().isEmpty()) {
-                var song = result.getRandomSongs().getSong().getFirst();
-
-                // Send Action: Load Song
-                log.info("Loaded song: {}", song);
-                audioPlayer.dispatch(new Playback.Action.LoadSongs(List.of(song)));
-            }
-        } catch (Exception e) {
-            log.error("Failed to fetch songs", e);
-        }
+        Intl.textdomain(appId);
 
         try (InputStream in = Hypersonic.class.getResourceAsStream("/hypersonicapp.gresource")) {
             // Register Template Classes
             TemplateTypes.register(PlaybackWidget.class);
-            TemplateTypes.register(PlaybackInfoWidget.class);
-            TemplateTypes.register(PlaybackControlsWidget.class);
+            TemplateTypes.register(InfoWidget.class);
+            TemplateTypes.register(ControlsWidget.class);
             TemplateTypes.register(SelectionToolbarWidget.class);
-
-            TemplateTypes.register(HomePage.class);
+            TemplateTypes.register(SidebarRow.class);
 
             Resource resource;
             if (in != null) {
@@ -86,16 +75,28 @@ public class Hypersonic {
         } catch (IOException e) {
             log.error("error loading resource:", e);
         } finally {
-            ConnectionState.INSTANCE.disconnect();
             log.info("Application exited and connections closed.");
         }
     }
 
     @SuppressWarnings("java:S110")
+    @EqualsAndHashCode(callSuper = true)
     public static class Application extends org.gnome.adw.Application {
+
+        protected PlayerState playerState;
 
         @Override
         public void activate() {
+            Display display = Display.getDefault();
+            if (display != null) {
+                IconTheme theme = IconTheme.getForDisplay(display);
+                theme.addResourcePath("/io/ibnuja/Hypersonic/icons");
+            } else {
+                log.error("Display.getDefault() returned null inside activate()!");
+            }
+            if (playerState == null) {
+                playerState = new PlayerState();
+            }
             MainWindow win;
             List<Window> windows = super.getWindows();
             if (!windows.isEmpty()) {
@@ -108,7 +109,7 @@ public class Hypersonic {
         }
 
         @Override
-        public void open(File[] files, String hint) {
+        public void open(File[] files, @NonNull String hint) {
             MainWindow win;
             List<Window> windows = super.getWindows();
             if (!windows.isEmpty())

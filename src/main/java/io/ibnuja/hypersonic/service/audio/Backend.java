@@ -1,4 +1,4 @@
-package io.ibnuja.hypersonic.audio;
+package io.ibnuja.hypersonic.service.audio;
 
 public interface Backend {
 
