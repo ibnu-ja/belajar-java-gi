@@ -44,6 +44,7 @@ sourceSets {
 }
 
 val generateConfig by tasks.registering {
+    group = "build"
     val outputFile = generatedDir.get().file("io/ibnuja/hypersonic/Config.java").asFile
     outputs.file(outputFile)
 
@@ -54,6 +55,8 @@ val generateConfig by tasks.registering {
 
             public class Config {
                 public static final String LOCALE_DIR = "$localPrefix/share/locale";
+    
+                private Config() {}
             }
         """.trimIndent())
     }
