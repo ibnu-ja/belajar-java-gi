@@ -23,10 +23,12 @@ public class InfoWidget extends Button {
     @GtkChild(name = "playing_image")
     public Image playingImage;
 
+    @SuppressWarnings("unused")
     public InfoWidget() {
         super();
     }
 
+    @SuppressWarnings("unused")
     public InfoWidget(MemorySegment address) {
         super(address);
     }

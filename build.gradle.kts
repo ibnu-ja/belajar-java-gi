@@ -33,7 +33,7 @@ repositories {
 }
 
 val localPrefix = "${System.getProperty("user.home")}/.local"
-val generatedDir = layout.buildDirectory.dir("generated/sources/config")
+val generatedDir: Provider<Directory> = layout.buildDirectory.dir("generated/sources/config")
 
 sourceSets {
     main {
@@ -50,7 +50,8 @@ val generateConfig by tasks.registering {
 
     doLast {
         outputFile.parentFile.mkdirs()
-        outputFile.writeText("""
+        outputFile.writeText(
+            """
             package io.ibnuja.hypersonic;
 
             public class Config {
@@ -58,7 +59,8 @@ val generateConfig by tasks.registering {
     
                 private Config() {}
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 }
 
@@ -94,7 +96,7 @@ val commonJvmArgs = mutableListOf(
 )
 val mesonExt = extensions.getByType<MesonPluginExtension>()
 
-val mesonInstall = tasks.register("mesonInstall") {
+val mesonInstall = tasks.register<DefaultTask>("mesonInstall") {
     group = "build"
     description = "Installs all enabled Meson configurations"
     dependsOn("mesonSetup", "mesonCompile", "shadowJar")

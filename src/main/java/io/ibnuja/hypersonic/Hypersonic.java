@@ -5,10 +5,10 @@ import io.ibnuja.hypersonic.navigation.settings.SettingWindow;
 import io.ibnuja.hypersonic.navigation.sidebar.SidebarRow;
 import io.ibnuja.hypersonic.playback.ControlsWidget;
 import io.ibnuja.hypersonic.playback.InfoWidget;
-import io.ibnuja.hypersonic.playback.PlayerState;
 import io.ibnuja.hypersonic.playback.PlaybackWidget;
-import io.ibnuja.hypersonic.service.api.ConnectionState;
+import io.ibnuja.hypersonic.playback.PlayerState;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
 import org.gnome.gdk.Display;
@@ -39,13 +39,14 @@ public class Hypersonic {
         Out<String[]> gstArgs = new Out<>(args);
         Gst.init(gstArgs);
 
-        Pixbuf.getFormats().forEach(pixbufFormat -> log.debug(
-                "pixbufFormat supported: {}, {} ",
-                pixbufFormat.getName(),
-                pixbufFormat.getDescription()
-        ));
-
-        ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
+        Pixbuf.getFormats().forEach(pixbufFormat -> {
+            assert pixbufFormat != null;
+            log.debug(
+                    "pixbuf Format supported: {}, {} ",
+                    pixbufFormat.getName(),
+                    pixbufFormat.getDescription()
+            );
+        });
 
         String appId = "hypersonic";
         Intl.bindtextdomain(appId, Config.LOCALE_DIR);
@@ -74,7 +75,6 @@ public class Hypersonic {
         } catch (IOException e) {
             log.error("error loading resource:", e);
         } finally {
-            ConnectionState.INSTANCE.disconnect();
             log.info("Application exited and connections closed.");
         }
     }
@@ -109,7 +109,7 @@ public class Hypersonic {
         }
 
         @Override
-        public void open(File[] files, String hint) {
+        public void open(File[] files, @NonNull String hint) {
             MainWindow win;
             List<Window> windows = super.getWindows();
             if (!windows.isEmpty())

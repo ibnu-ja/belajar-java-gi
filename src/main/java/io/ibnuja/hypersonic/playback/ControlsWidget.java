@@ -33,10 +33,12 @@ public class ControlsWidget extends Box {
     @GtkChild(name = "repeat")
     public Button repeatButton;
 
+    @SuppressWarnings("unused")
     public ControlsWidget() {
         super();
     }
 
+    @SuppressWarnings("unused")
     public ControlsWidget(MemorySegment address) {
         super(address);
     }

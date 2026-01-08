@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 public class GstBackend implements Backend {
 
     private final Element playbin;
-    private final Element fakesink;
 
     public GstBackend() {
         playbin = ElementFactory.make("playbin", "audio-player");
@@ -21,7 +20,7 @@ public class GstBackend implements Backend {
             throw new IllegalStateException("Failed to create playbin element");
         }
 
-        fakesink = ElementFactory.make("fakesink", "video-fakesink");
+        Element fakesink = ElementFactory.make("fakesink", "video-fakesink");
         if (fakesink != null) {
             playbin.set("video-sink", fakesink);
         }
@@ -48,7 +47,6 @@ public class GstBackend implements Backend {
 
                     // Retrieve the message type synchronously
                     Set<MessageType> msgTypes = msg.readType();
-                    if (msgTypes == null) return;
 
                     if (msgTypes.contains(MessageType.EOS)) {
                         log.debug("EOS received");

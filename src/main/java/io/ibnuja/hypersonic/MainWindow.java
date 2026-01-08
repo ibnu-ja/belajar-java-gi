@@ -1,10 +1,6 @@
 package io.ibnuja.hypersonic;
 
 import io.ibnuja.hypersonic.playback.PlaybackWidget;
-import io.ibnuja.hypersonic.service.api.ConnectionState;
-import io.ibnuja.hypersonic.service.api.SubsonicApi;
-import io.ibnuja.hypersonic.service.audio.Backend;
-import io.ibnuja.hypersonic.service.audio.GstBackend;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.adw.ApplicationWindow;
