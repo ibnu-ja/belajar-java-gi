@@ -33,16 +33,11 @@ public class MainWindow extends ApplicationWindow {
 
     protected Settings settings;
 
-    public Backend backend;
-    public SubsonicApi api;
-
     @GtkChild(name = "playback")
     public PlaybackWidget playbackWidget;
 
     public MainWindow(Hypersonic.Application app) {
         log.trace("MainWindow constructor");
-        this.backend = new GstBackend();
-        this.api = ConnectionState.INSTANCE.getApi();
         setApplication(app);
         playbackWidget.setup(app.playerState);
     }

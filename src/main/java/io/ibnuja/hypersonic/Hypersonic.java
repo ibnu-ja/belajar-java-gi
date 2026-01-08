@@ -8,6 +8,7 @@ import io.ibnuja.hypersonic.playback.InfoWidget;
 import io.ibnuja.hypersonic.playback.PlayerState;
 import io.ibnuja.hypersonic.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.service.api.ConnectionState;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.Gst;
 import org.gnome.gdk.Display;
@@ -79,6 +80,7 @@ public class Hypersonic {
     }
 
     @SuppressWarnings("java:S110")
+    @EqualsAndHashCode(callSuper = true)
     public static class Application extends org.gnome.adw.Application {
 
         protected PlayerState playerState;

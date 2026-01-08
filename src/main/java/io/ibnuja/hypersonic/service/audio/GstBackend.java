@@ -53,10 +53,7 @@ public class GstBackend implements Backend {
                     if (msgTypes.contains(MessageType.EOS)) {
                         log.debug("EOS received");
                         GLib.idleAdd(
-                                GLib.PRIORITY_DEFAULT_IDLE, () -> {
-//                                    dispatcher.accept(new Playback.Action.SongFinished());
-                                    return false;
-                                }
+                                GLib.PRIORITY_DEFAULT_IDLE, () -> false
                         );
                     } else if (msgTypes.contains(MessageType.ERROR)) {
                         Out<GError> errorOut = new Out<>();
@@ -66,10 +63,7 @@ public class GstBackend implements Backend {
                         String debugMsg = debugOut.get();
                         log.error("GStreamer Error: {} - Debug: {}", errorMsg, debugMsg);
                         GLib.idleAdd(
-                                GLib.PRIORITY_DEFAULT_IDLE, () -> {
-//                                    dispatcher.accept(new Playback.Action.Stop());
-                                    return false;
-                                }
+                                GLib.PRIORITY_DEFAULT_IDLE, () -> false
                         );
                     }
                 }

@@ -10,6 +10,7 @@ import org.javagi.gtk.annotations.GtkChild;
 import org.javagi.gtk.annotations.GtkTemplate;
 
 import java.lang.foreign.MemorySegment;
+import java.util.Objects;
 
 @SuppressWarnings("java:S110")
 @Slf4j
@@ -41,7 +42,7 @@ public class ControlsWidget extends Box {
     }
 
     @InstanceInit
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "java:S1186"})
     public void init() {
     }
 
@@ -49,7 +50,7 @@ public class ControlsWidget extends Box {
         vm.<Boolean, String>bindProperty("playing", playPauseButton, "icon-name")
                 .transformTo(playing -> {
                     log.trace("PlayerState playing state is changed to {}. Updating playPauseButton icon-name", playing);
-                    if (playing) {
+                    if (Objects.equals(Boolean.TRUE, playing)) {
                         return "media-playback-pause-symbolic";
                     } else {
                         return "media-playback-start-symbolic";
