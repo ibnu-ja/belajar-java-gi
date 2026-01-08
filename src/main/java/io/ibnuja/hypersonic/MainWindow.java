@@ -1,5 +1,6 @@
 package io.ibnuja.hypersonic;
 
+import io.ibnuja.hypersonic.navigation.HomePage;
 import io.ibnuja.hypersonic.playback.PlaybackWidget;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,8 @@ public class MainWindow extends ApplicationWindow {
     public void init() {
         log.trace("MainWindow init");
         settings = new Settings("io.ibnuja.Hypersonic");
+
+        navigationView.push(new HomePage());
     }
 
 }
