@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.gnome.gtk.Button;
 import org.gnome.gtk.Image;
 import org.gnome.gtk.Label;
-import org.javagi.gobject.annotations.InstanceInit;
 import org.javagi.gtk.annotations.GtkChild;
 import org.javagi.gtk.annotations.GtkTemplate;
 
@@ -24,18 +23,7 @@ public class InfoWidget extends Button {
     public Image playingImage;
 
     @SuppressWarnings("unused")
-    public InfoWidget() {
-        super();
-    }
-
-    @SuppressWarnings("unused")
     public InfoWidget(MemorySegment address) {
         super(address);
-    }
-
-    @InstanceInit
-    @SuppressWarnings("unused")
-    public void init() {
-        log.trace("PlaybackInfoWidget initialized");
     }
 }

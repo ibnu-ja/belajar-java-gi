@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.gnome.gtk.Box;
 import org.gnome.gtk.Button;
 import org.gnome.gtk.ToggleButton;
-import org.javagi.gobject.annotations.InstanceInit;
 import org.javagi.gtk.annotations.GtkChild;
 import org.javagi.gtk.annotations.GtkTemplate;
 
@@ -34,18 +33,8 @@ public class ControlsWidget extends Box {
     public Button repeatButton;
 
     @SuppressWarnings("unused")
-    public ControlsWidget() {
-        super();
-    }
-
-    @SuppressWarnings("unused")
     public ControlsWidget(MemorySegment address) {
         super(address);
-    }
-
-    @InstanceInit
-    @SuppressWarnings({"unused", "java:S1186"})
-    public void init() {
     }
 
     public void setup(PlayerState vm) {

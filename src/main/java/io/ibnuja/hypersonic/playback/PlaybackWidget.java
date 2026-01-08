@@ -32,10 +32,6 @@ public class PlaybackWidget extends Box {
     @GtkChild(name = "volume_slider")
     public Scale volumeSlider;
 
-    public PlaybackWidget() {
-        super();
-    }
-
     public PlaybackWidget(MemorySegment address) {
         super(address);
     }
