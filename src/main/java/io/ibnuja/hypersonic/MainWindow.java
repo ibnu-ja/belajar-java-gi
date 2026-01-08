@@ -1,9 +1,13 @@
 package io.ibnuja.hypersonic;
 
+import io.ibnuja.hypersonic.playback.PlaybackWidget;
+import io.ibnuja.hypersonic.service.api.ConnectionState;
+import io.ibnuja.hypersonic.service.api.SubsonicApi;
+import io.ibnuja.hypersonic.service.audio.Backend;
+import io.ibnuja.hypersonic.service.audio.GstBackend;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.adw.ApplicationWindow;
-import org.gnome.adw.NavigationPage;
 import org.gnome.adw.NavigationSplitView;
 import org.gnome.adw.NavigationView;
 import org.gnome.gio.Settings;
@@ -29,26 +33,24 @@ public class MainWindow extends ApplicationWindow {
 
     protected Settings settings;
 
+    public Backend backend;
+    public SubsonicApi api;
+
+    @GtkChild(name = "playback")
+    public PlaybackWidget playbackWidget;
+
     public MainWindow(Hypersonic.Application app) {
+        log.info("MainWindow constructor");
+        this.backend = new GstBackend();
+        this.api = ConnectionState.INSTANCE.getApi();
         setApplication(app);
-    }
-
-    private void logStackLevel(String context) {
-        int depth = 0;
-        NavigationPage current = navigationView.getVisiblePage();
-        String visibleTitle = (current != null) ? current.getTitle() : "null";
-
-        while (current != null) {
-            depth++;
-            current = navigationView.getPreviousPage(current);
-        }
-
-        log.debug("[Navigation] {}: Depth={}, Visible='{}'", context, depth, visibleTitle);
+        playbackWidget.setup(app.playerState);
     }
 
     @InstanceInit
     @SuppressWarnings("unused")
     public void init() {
+        log.trace("MainWindow init");
         settings = new Settings("io.ibnuja.Hypersonic");
     }
 

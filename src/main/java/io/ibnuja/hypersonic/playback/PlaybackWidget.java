@@ -15,10 +15,10 @@ import java.lang.foreign.MemorySegment;
 public class PlaybackWidget extends Box {
 
     @GtkChild
-    public PlaybackControlsWidget controls;
+    public ControlsWidget controls;
 
     @GtkChild(name = "now_playing")
-    public PlaybackInfoWidget nowPlaying;
+    public InfoWidget nowPlaying;
 
     @GtkChild(name = "seek_bar")
     public Scale seekBar;
@@ -38,5 +38,9 @@ public class PlaybackWidget extends Box {
 
     public PlaybackWidget(MemorySegment address) {
         super(address);
+    }
+
+    public void setup(PlayerState vm) {
+        controls.setup(vm);
     }
 }

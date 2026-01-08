@@ -15,7 +15,7 @@ import java.lang.foreign.MemorySegment;
 @Slf4j
 @EqualsAndHashCode(callSuper = true)
 @GtkTemplate(name = "PlaybackControlsWidget", ui = "/io/ibnuja/Hypersonic/components/playback/playback_controls.ui")
-public class PlaybackControlsWidget extends Box {
+public class ControlsWidget extends Box {
 
     @GtkChild(name = "shuffle")
     public ToggleButton shuffleButton;
@@ -32,18 +32,32 @@ public class PlaybackControlsWidget extends Box {
     @GtkChild(name = "repeat")
     public Button repeatButton;
 
-    public PlaybackControlsWidget() {
+    public ControlsWidget() {
         super();
     }
 
-    public PlaybackControlsWidget(MemorySegment address) {
+    public ControlsWidget(MemorySegment address) {
         super(address);
     }
 
     @InstanceInit
     @SuppressWarnings("unused")
     public void init() {
-
     }
 
+    public void setup(PlayerState vm) {
+        vm.<Boolean, String>bindProperty("playing", playPauseButton, "icon-name")
+                .transformTo(playing -> {
+                    log.trace("PlayerState playing state is changed to {}. Updating playPauseButton icon-name", playing);
+                    if (playing) {
+                        return "media-playback-pause-symbolic";
+                    } else {
+                        return "media-playback-start-symbolic";
+                    }
+                })
+                .syncCreate()
+                .build();
+
+        playPauseButton.onClicked(vm::togglePlay);
+    }
 }

@@ -3,8 +3,9 @@ package io.ibnuja.hypersonic;
 import io.ibnuja.hypersonic.navigation.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.navigation.settings.SettingWindow;
 import io.ibnuja.hypersonic.navigation.sidebar.SidebarRow;
-import io.ibnuja.hypersonic.playback.PlaybackControlsWidget;
-import io.ibnuja.hypersonic.playback.PlaybackInfoWidget;
+import io.ibnuja.hypersonic.playback.ControlsWidget;
+import io.ibnuja.hypersonic.playback.InfoWidget;
+import io.ibnuja.hypersonic.playback.PlayerState;
 import io.ibnuja.hypersonic.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.service.api.ConnectionState;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,6 @@ import java.util.List;
 public class Hypersonic {
 
     @SuppressWarnings({"java:S1444", "java:S1104", "java:S1135"})
-
     static void main(String[] args) throws GErrorException {
         LoggingBootstrap.init();
         Out<String[]> gstArgs = new Out<>(args);
@@ -50,25 +50,12 @@ public class Hypersonic {
         Intl.bindtextdomain(appId, Config.LOCALE_DIR);
 
         Intl.textdomain(appId);
-        ConnectionState.INSTANCE.getApi()
-                .getRandomSongs(1)
-                .thenAccept(result -> {
-                    if (!result.getRandomSongs().getSong().isEmpty()) {
-                        var song = result.getRandomSongs().getSong().getFirst();
-                        log.info("Loaded song: {}", song);
-//                        audioPlayer.dispatch(new Playback.Action.LoadSongs(List.of(song)));
-                    }
-                })
-                .exceptionally(e -> {
-                    log.error("Failed to fetch songs", e);
-                    return null;
-                });
 
         try (InputStream in = Hypersonic.class.getResourceAsStream("/hypersonicapp.gresource")) {
             // Register Template Classes
             TemplateTypes.register(PlaybackWidget.class);
-            TemplateTypes.register(PlaybackInfoWidget.class);
-            TemplateTypes.register(PlaybackControlsWidget.class);
+            TemplateTypes.register(InfoWidget.class);
+            TemplateTypes.register(ControlsWidget.class);
             TemplateTypes.register(SelectionToolbarWidget.class);
             TemplateTypes.register(SidebarRow.class);
 
@@ -94,6 +81,8 @@ public class Hypersonic {
     @SuppressWarnings("java:S110")
     public static class Application extends org.gnome.adw.Application {
 
+        protected PlayerState playerState;
+
         @Override
         public void activate() {
             Display display = Display.getDefault();
@@ -103,7 +92,9 @@ public class Hypersonic {
             } else {
                 log.error("Display.getDefault() returned null inside activate()!");
             }
-
+            if (playerState == null) {
+                playerState = new PlayerState();
+            }
             MainWindow win;
             List<Window> windows = super.getWindows();
             if (!windows.isEmpty()) {
