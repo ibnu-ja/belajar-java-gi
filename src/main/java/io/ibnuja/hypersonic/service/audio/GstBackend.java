@@ -10,10 +10,12 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
+@SuppressWarnings("unused")
 public class GstBackend implements Backend {
 
     private final Element playbin;
 
+    @SuppressWarnings("unused")
     public GstBackend() {
         playbin = ElementFactory.make("playbin", "audio-player");
         if (playbin == null) {
