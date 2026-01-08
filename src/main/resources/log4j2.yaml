@@ -3,7 +3,7 @@ Configuration:Configuration:
     Console:
       name: CONSOLE
       PatternLayout:
-        pattern: "%style{(%c{1.}:%t)}{cyan}: %highlight{JAVA-%p}{FATAL=bg_red, ERROR=red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=magenta} **: %d{HH:mm:ss.SSS}: %m%n"
+        pattern: "%style{(%c{1.}:%t)}{cyan}: %highlight{%p}{FATAL=bg_red, ERROR=red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=magenta} **: %d{HH:mm:ss.SSS}: %m%n"
   Loggers:
     Root:
       level: INFO
