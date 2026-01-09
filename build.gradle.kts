@@ -1,17 +1,14 @@
 @file:Suppress("SpellCheckingInspection")
 
-import io.github.wasabithumb.gmp.MesonPluginExtension
-import io.github.wasabithumb.gmp.option.MesonBuildType
-import io.github.wasabithumb.gmp.option.MesonOptimizationLevel
-import io.github.wasabithumb.gmp.task.MesonSetupTask
-
-
 plugins {
     id("application")
     id("io.freefair.lombok") version "9.0.0"
-    id("io.github.wasabithumb.gradle-meson-plugin") version "0.1.0"
     id("com.gradleup.shadow") version "9.2.2"
     kotlin("jvm")
+
+    id("io.ibnuja.environment")
+    id("io.ibnuja.gtk")
+    id("io.ibnuja.meson")
 }
 
 group = "io.ibnuja"
@@ -30,14 +27,25 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/eap")
 }
 
-val localPrefix = "${System.getProperty("user.home")}/.local"
+gtk {
+    resourceDirectory.set("src/main/resources")
+    gresourceFile.set("hypersonicapp.gresource.xml")
+
+    blueprints(
+        "window.blp",
+        "components/settings/settings.blp",
+        "components/playback/playback_info.blp",
+        "components/playback/playback_controls.blp",
+        "components/playback/playback_widget.blp",
+        "components/selection/selection_toolbar.blp",
+        "pages/home.blp"
+    )
+}
 
 meson {
-    configuration("linux-amd64") {
-        buildType = MesonBuildType.RELEASE
-        optimization = MesonOptimizationLevel.O3
-        options["prefix"] = localPrefix
-    }
+    buildDirectory.set("build/meson")
+    buildType.set("release")
+    option("optimization", "3")
 }
 
 java {
@@ -46,91 +54,45 @@ java {
     }
 }
 
-tasks.named<MesonSetupTask>("mesonSetup") {
-    dependsOn("shadowJar")
-}
+val commonJvmArgs = mutableListOf("--enable-native-access=ALL-UNNAMED")
 
-val commonJvmArgs = mutableListOf(
-    "--enable-native-access=ALL-UNNAMED",
-)
-val mesonExt = extensions.getByType<MesonPluginExtension>()
-
-val mesonInstall = tasks.register("mesonInstall") {
-    group = "build"
-    description = "Installs all enabled Meson configurations"
-    dependsOn("mesonSetup", "shadowJar")
-}
-
-mesonExt.configurations.forEach { (configName, config) ->
-    if (config.enabled) {
-        val taskName = "mesonInstall${configName.replaceFirstChar { it.uppercase() }}"
-
-        tasks.register<Exec>(taskName) {
-            group = "build"
-            description = "Installs the $configName configuration"
-            dependsOn("mesonCompile")
-
-            val buildDir = layout.buildDirectory.dir("meson/$configName").get().asFile
-            workingDir = buildDir
-
-            commandLine("meson", "install")
-
-            onlyIf { buildDir.exists() }
-        }
-
-        mesonInstall.configure {
-            dependsOn(taskName)
-        }
+val os = System.getProperty("os.name").lowercase()
+when {
+    os.contains("mac") || os.contains("darwin") -> {
+        commonJvmArgs.add("-XstartOnFirstThread")
     }
 }
 
 tasks.named("shadowJar") {
-    dependsOn("compileResources")
+    dependsOn("compileGResources")
 }
 
 tasks.named<JavaExec>("run") {
-    dependsOn("compileResources")
-    args(
-        "Hypersonic",
-    )
+    dependsOn("compileGResources")
+    args("Hypersonic")
 }
 
-tasks.register<Exec>("compileBlueprints") {
-    group = "build"
-    description = "Compile Blueprint files into GtkBuilder XML."
-    workingDir = file("src/main/resources")
-
-    val inputFiles = listOf(
-        "window.blp",
-        //components
-        "components/settings/settings.blp",
-        "components/playback/playback_info.blp",
-        "components/playback/playback_controls.blp",
-        "components/playback/playback_widget.blp",
-        "components/selection/selection_toolbar.blp",
-        //pages
-        "pages/home.blp",
-    )
-
-    commandLine(
-        "blueprint-compiler",
-        "batch-compile",
-        "blueprint-compiler",
-        ".",
-        *inputFiles.toTypedArray()
-    )
+application {
+    applicationDefaultJvmArgs = commonJvmArgs
+    mainClass.set("io.ibnuja.hypersonic.Hypersonic")
 }
 
-tasks.register<Exec>("compileResources") {
-    group = "build"
-    description = "Compile GResource XML into a binary resource file."
-    workingDir = file("src/main/resources")
-    dependsOn("compileBlueprints")
-    commandLine = listOf("glib-compile-resources", "hypersonicapp.gresource.xml")
+afterEvaluate {
+    val libraryPath = environment.libraryPath.get()
+
+    tasks.named<JavaExec>("run") {
+        jvmArgs("-Djava.library.path=$libraryPath")
+    }
+
+    tasks.named<Test>("test") {
+        jvmArgs("-Djava.library.path=$libraryPath")
+    }
+
+    application.applicationDefaultJvmArgs = application.applicationDefaultJvmArgs!! +
+            listOf("-Djava.library.path=$libraryPath")
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     implementation("org.slf4j:slf4j-api:${slf4jVersion}")
     implementation(platform("org.apache.logging.log4j:log4j-bom:${log4jVersion}"))
     implementation(platform("com.fasterxml.jackson:jackson-bom:${jacksonBomVersion}"))
@@ -152,16 +114,9 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
     useJUnitPlatform()
-    jvmArgs(commonJvmArgs)
-}
-
-application {
-    applicationDefaultJvmArgs = commonJvmArgs
-    mainClass.set("io.ibnuja.hypersonic.Hypersonic")
 }
