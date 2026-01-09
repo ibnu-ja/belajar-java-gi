@@ -1,6 +1,5 @@
-package io.ibnuja.hypersonic.audio;
+package io.ibnuja.hypersonic.service.audio;
 
-import io.ibnuja.hypersonic.state.Playback;
 import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.*;
 import org.gnome.glib.GError;
@@ -9,23 +8,21 @@ import org.javagi.base.Out;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @Slf4j
+@SuppressWarnings("unused")
 public class GstBackend implements Backend {
 
     private final Element playbin;
-    private final Consumer<Playback.Action> dispatcher;
-    private final Element fakesink;
 
-    public GstBackend(Consumer<Playback.Action> dispatcher) {
-        this.dispatcher = dispatcher;
+    @SuppressWarnings("unused")
+    public GstBackend() {
         playbin = ElementFactory.make("playbin", "audio-player");
         if (playbin == null) {
             throw new IllegalStateException("Failed to create playbin element");
         }
 
-        fakesink = ElementFactory.make("fakesink", "video-fakesink");
+        Element fakesink = ElementFactory.make("fakesink", "video-fakesink");
         if (fakesink != null) {
             playbin.set("video-sink", fakesink);
         }
@@ -52,15 +49,11 @@ public class GstBackend implements Backend {
 
                     // Retrieve the message type synchronously
                     Set<MessageType> msgTypes = msg.readType();
-                    if (msgTypes == null) return;
 
                     if (msgTypes.contains(MessageType.EOS)) {
                         log.debug("EOS received");
                         GLib.idleAdd(
-                                GLib.PRIORITY_DEFAULT_IDLE, () -> {
-                                    dispatcher.accept(new Playback.Action.SongFinished());
-                                    return false;
-                                }
+                                GLib.PRIORITY_DEFAULT_IDLE, () -> false
                         );
                     } else if (msgTypes.contains(MessageType.ERROR)) {
                         Out<GError> errorOut = new Out<>();
@@ -70,10 +63,7 @@ public class GstBackend implements Backend {
                         String debugMsg = debugOut.get();
                         log.error("GStreamer Error: {} - Debug: {}", errorMsg, debugMsg);
                         GLib.idleAdd(
-                                GLib.PRIORITY_DEFAULT_IDLE, () -> {
-                                    dispatcher.accept(new Playback.Action.Stop());
-                                    return false;
-                                }
+                                GLib.PRIORITY_DEFAULT_IDLE, () -> false
                         );
                     }
                 }

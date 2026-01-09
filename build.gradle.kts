@@ -15,15 +15,16 @@ group = "io.ibnuja"
 version = "1.0-SNAPSHOT"
 
 val slf4jVersion = "2.0.17"
-val log4jVersion = "2.25.2"
+val log4jVersion = "2.25.3"
 val junitVersion = "5.10.0"
 val jacksonBomVersion = "2.20.0"
-val javaGiVersion = "0.13.0"
+val javaGiVersion = "0.14.0"
 val ktorVersion = "3.3.2"
 val subsonicApiVersion = "1.1.1"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/eap")
 }
 
