@@ -4,8 +4,8 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.register
 
 class GLibBuildTools : Plugin<Project> {
     override fun apply(project: Project) {
@@ -34,14 +34,7 @@ class GLibBuildTools : Plugin<Project> {
             val blueprintFiles = extension.blueprintFiles.get()
             val outputDir = extension.blueprintOutputDirectory.get()
 
-            // CONDITIONAL: Skip task if no blueprint files are defined
-            onlyIf {
-                val hasFiles = blueprintFiles.isNotEmpty()
-                if (!hasFiles) {
-                    println("GLibBuildTools: No blueprint files found, skipping compilation.")
-                }
-                hasFiles
-            }
+            onlyIf { blueprintFiles.isNotEmpty() }
 
             val args = mutableListOf(
                 "blueprint-compiler",
@@ -50,7 +43,6 @@ class GLibBuildTools : Plugin<Project> {
                 "."
             )
             args.addAll(blueprintFiles)
-
             args.addAll(extension.blueprintArgs.get())
 
             if (project.hasProperty("gtk.blueprintArgs")) {
@@ -58,8 +50,6 @@ class GLibBuildTools : Plugin<Project> {
                 args.addAll(extraArgs.split(" ").filter { it.isNotBlank() })
             }
 
-            // Only configure command if we actually have files to process
-            // (though onlyIf prevents execution, this prevents empty arg errors during config)
             if (blueprintFiles.isNotEmpty()) {
                 executeCommand(env, *args.toTypedArray())
             }
@@ -112,10 +102,12 @@ open class GLibBuildToolsExtension(private val project: Project) {
         blueprintFiles.addAll(*files)
     }
 
+    @Suppress("unused")
     fun blueprintArg(vararg args: String) {
         blueprintArgs.addAll(*args)
     }
 
+    @Suppress("unused")
     fun gresourceArg(vararg args: String) {
         gresourceArgs.addAll(*args)
     }

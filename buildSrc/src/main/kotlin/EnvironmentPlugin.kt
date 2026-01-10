@@ -2,6 +2,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
+import java.io.File
 
 class EnvironmentPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -55,7 +56,7 @@ class EnvironmentPlugin : Plugin<Project> {
                 }
             }
             InstallLocation.BUILD_DIR -> {
-                project.buildDir.absolutePath.replace("\\", "/") + "/install"
+                project.layout.buildDirectory.get().asFile.absolutePath.replace("\\", "/") + "/install"
             }
             InstallLocation.APPDATA_LOCAL -> {
                 val localAppData = System.getenv("LOCALAPPDATA") ?: "${System.getProperty("user.home")}/AppData/Local"
@@ -66,6 +67,7 @@ class EnvironmentPlugin : Plugin<Project> {
 
         extension.prefix.set(prefix)
 
+        // Configure Library Path
         val libPath = when (extension.type.get()) {
             EnvironmentType.MSYS2_MINGW64 -> {
                 val msys2Home = System.getenv("MSYS2_HOME") ?: "C:\\msys64"
@@ -78,9 +80,10 @@ class EnvironmentPlugin : Plugin<Project> {
         extension.libraryPath.set(libPath)
     }
 
+    @Suppress("SameReturnValue")
     private fun detectWindowsEnvironment(): EnvironmentType {
         val msys2Home = System.getenv("MSYS2_HOME") ?: "C:\\msys64"
-        val msys2Exists = java.io.File(msys2Home).exists()
+        val msys2Exists = File(msys2Home).exists()
 
         return if (msys2Exists) {
             EnvironmentType.MSYS2_MINGW64

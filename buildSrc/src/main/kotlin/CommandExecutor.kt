@@ -11,7 +11,7 @@ fun Exec.executeCommand(env: EnvironmentExtension, vararg command: String) {
 
             val bashCommand = "cd \"$escapedDir\" && $fullCommand"
 
-            println("Executing (MSYS2): $bashCommand")
+            logger.lifecycle("Executing (MSYS2): $bashCommand")
 
             commandLine(
                 "$msysPath\\usr\\bin\\bash.exe",
@@ -20,11 +20,10 @@ fun Exec.executeCommand(env: EnvironmentExtension, vararg command: String) {
             )
         }
         EnvironmentType.NATIVE_POSIX -> {
-            println("Executing (POSIX): $fullCommand")
-            println("Working directory: ${workingDir.absolutePath}")
+            logger.lifecycle("Executing (POSIX): $fullCommand")
+            logger.lifecycle("Working directory: ${workingDir.absolutePath}")
 
             commandLine(*command)
         }
-        // TODO: NATIVE_WINDOWS support
     }
 }
