@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.freedesktop.gstreamer.gst.*;
 import org.gnome.glib.GError;
 import org.gnome.glib.GLib;
+import org.gnome.gobject.GObject;
 import org.javagi.base.Out;
 
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @SuppressWarnings("unused")
-public class GstBackend implements Backend {
+public class GstBackend extends GObject implements Backend {
 
     private final Element playbin;
 
