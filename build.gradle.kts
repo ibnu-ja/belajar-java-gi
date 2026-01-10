@@ -7,8 +7,7 @@ plugins {
     kotlin("jvm")
 
     id("io.ibnuja.environment")
-    id("io.ibnuja.gtk")
-    id("io.ibnuja.meson")
+    id("io.ibnuja.glib.buildtools")
 }
 
 group = "io.ibnuja"
@@ -28,25 +27,20 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/eap")
 }
 
-gtk {
+glibBuildTools {
     resourceDirectory.set("src/main/resources")
     gresourceFile.set("hypersonicapp.gresource.xml")
 
     blueprints(
         "window.blp",
-        "components/settings/settings.blp",
         "components/playback/playback_info.blp",
         "components/playback/playback_controls.blp",
         "components/playback/playback_widget.blp",
         "components/selection/selection_toolbar.blp",
+        "components/settings/settings.blp",
+        "components/sidebar/sidebar_row.blp",
         "pages/home.blp"
     )
-}
-
-meson {
-    buildDirectory.set("build/meson")
-    buildType.set("release")
-    option("optimization", "3")
 }
 
 java {
@@ -64,14 +58,48 @@ when {
     }
 }
 
-tasks.named("shadowJar") {
+tasks.named("processResources") {
     dependsOn("compileGResources")
 }
 
 tasks.named<JavaExec>("run") {
-    dependsOn("compileGResources")
     args("Hypersonic")
 }
+
+val generateConfig by tasks.registering {
+    group = "build"
+    val outputFile = layout.buildDirectory.dir("generated/sources/config/java/main").get().file("io/ibnuja/hypersonic/Config.java").asFile
+    outputs.file(outputFile)
+
+    val prefixProp = providers.gradleProperty("mesonPrefix")
+        .getOrElse("${System.getProperty("user.home")}${File.separator}.local")
+
+    inputs.property("mesonPrefix", prefixProp)
+
+    doLast {
+        val absoluteLocaleDir = (prefixProp.split("/", "\\").filter { it.isNotEmpty() } + "share" + "locale")
+            .joinToString(File.separator, prefix = File.separator)
+
+        outputFile.parentFile.mkdirs()
+        outputFile.writeText(
+            """
+            package io.ibnuja.hypersonic;
+
+            public class Config {
+                public static final String LOCALE_DIR = "$absoluteLocaleDir";
+                private Config() {}
+            }
+        """.trimIndent()
+        )
+    }
+}
+
+sourceSets.main {
+    java.srcDir(layout.buildDirectory.dir("generated/sources/config/java/main"))
+}
+tasks.compileJava { dependsOn(generateConfig) }
+
+tasks.compileKotlin { dependsOn(generateConfig) }
 
 application {
     applicationDefaultJvmArgs = commonJvmArgs

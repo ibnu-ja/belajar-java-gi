@@ -7,12 +7,12 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.getByType
 
-class GtkPlugin : Plugin<Project> {
+class GLibBuildTools : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.apply(EnvironmentPlugin::class.java)
 
-        val extension = project.extensions.create<GtkExtension>(
-            "gtk",
+        val extension = project.extensions.create<GLibBuildToolsExtension>(
+            "glibBuildTools",
             project
         )
 
@@ -21,11 +21,11 @@ class GtkPlugin : Plugin<Project> {
         }
     }
 
-    private fun registerTasks(project: Project, extension: GtkExtension) {
+    private fun registerTasks(project: Project, extension: GLibBuildToolsExtension) {
         val env = project.extensions.getByType<EnvironmentExtension>()
 
         project.tasks.register<Exec>("compileBlueprints") {
-            group = "gtk"
+            group = "build"
             description = "Compile Blueprint files into GtkBuilder XML"
 
             val resourceDir = extension.resourceDirectory.get()
@@ -34,13 +34,22 @@ class GtkPlugin : Plugin<Project> {
             val blueprintFiles = extension.blueprintFiles.get()
             val outputDir = extension.blueprintOutputDirectory.get()
 
+            // CONDITIONAL: Skip task if no blueprint files are defined
+            onlyIf {
+                val hasFiles = blueprintFiles.isNotEmpty()
+                if (!hasFiles) {
+                    println("GLibBuildTools: No blueprint files found, skipping compilation.")
+                }
+                hasFiles
+            }
+
             val args = mutableListOf(
                 "blueprint-compiler",
                 "batch-compile",
                 outputDir,
-                ".",
-                blueprintFiles.joinToString(" ")
+                "."
             )
+            args.addAll(blueprintFiles)
 
             args.addAll(extension.blueprintArgs.get())
 
@@ -49,14 +58,18 @@ class GtkPlugin : Plugin<Project> {
                 args.addAll(extraArgs.split(" ").filter { it.isNotBlank() })
             }
 
-            executeCommand(env, *args.toTypedArray())
+            // Only configure command if we actually have files to process
+            // (though onlyIf prevents execution, this prevents empty arg errors during config)
+            if (blueprintFiles.isNotEmpty()) {
+                executeCommand(env, *args.toTypedArray())
+            }
 
             inputs.files(blueprintFiles.map { project.file("$resourceDir/$it") })
             outputs.dir(project.file("$resourceDir/$outputDir"))
         }
 
         project.tasks.register<Exec>("compileGResources") {
-            group = "gtk"
+            group = "build"
             description = "Compile GResource XML into binary resource file"
 
             val resourceDir = extension.resourceDirectory.get()
@@ -81,7 +94,7 @@ class GtkPlugin : Plugin<Project> {
     }
 }
 
-open class GtkExtension(private val project: Project) {
+open class GLibBuildToolsExtension(private val project: Project) {
     val resourceDirectory: Property<String> = project.objects.property(String::class.java)
         .convention("src/main/resources")
 
