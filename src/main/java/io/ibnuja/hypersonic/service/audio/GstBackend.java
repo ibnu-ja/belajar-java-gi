@@ -27,6 +27,8 @@ public class GstBackend implements Backend {
             playbin.set("video-sink", fakesink);
         }
 
+        playbin.set("flags", 0x0002); // GST_PLAY_FLAG_AUDIO
+
         setupBus();
     }
 
@@ -43,8 +45,8 @@ public class GstBackend implements Backend {
 
         bus.addSignalWatch();
 
-        bus.connect(
-                "message", (Bus.MessageCallback) (Message msg) -> {
+        bus.onMessage(
+                null, (Message msg) -> {
                     if (msg == null) return;
 
                     // Retrieve the message type synchronously
@@ -65,6 +67,7 @@ public class GstBackend implements Backend {
                         GLib.idleAdd(
                                 GLib.PRIORITY_DEFAULT_IDLE, () -> false
                         );
+                    } else if (msgTypes.contains(MessageType.BUFFERING)) {
                     }
                 }
         );
@@ -76,6 +79,7 @@ public class GstBackend implements Backend {
     }
 
     public void play() {
+        log.debug("Playing");
         playbin.setState(State.PLAYING);
     }
 

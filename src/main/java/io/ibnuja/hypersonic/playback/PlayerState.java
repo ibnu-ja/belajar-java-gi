@@ -1,9 +1,11 @@
 package io.ibnuja.hypersonic.playback;
 
 import io.ibnuja.hypersonic.model.Song;
+import io.ibnuja.hypersonic.service.api.ConnectionState;
 import io.ibnuja.hypersonic.service.audio.Backend;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gnome.gobject.GObject;
 import org.javagi.gobject.annotations.RegisteredType;
@@ -11,6 +13,7 @@ import org.javagi.gobject.annotations.RegisteredType;
 @Slf4j
 @RegisteredType(name = "PlayerState")
 @EqualsAndHashCode(callSuper = true)
+@RequiredArgsConstructor
 public class PlayerState extends GObject {
 
     @Getter
@@ -19,9 +22,16 @@ public class PlayerState extends GObject {
     @Getter
     private Song currentSong;
 
+    private final Backend backend;
+
     public void setPlaying(boolean playing) {
         log.debug("setPlaying {}", playing);
         this.playing = playing;
+        if (playing) {
+            backend.play();
+        } else {
+            backend.pause();
+        }
         notify("playing");
     }
 
@@ -32,6 +42,9 @@ public class PlayerState extends GObject {
     public void setCurrentSong(Song song) {
         log.debug("setCurrentSong {}", song);
         this.currentSong = song;
+        if (song != null) {
+            backend.setUri(ConnectionState.INSTANCE.getApi().streamUrl(song.getId()));
+        }
         notify("current-song");
     }
 

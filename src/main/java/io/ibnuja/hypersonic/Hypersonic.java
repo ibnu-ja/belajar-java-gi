@@ -9,8 +9,8 @@ import io.ibnuja.hypersonic.playback.InfoWidget;
 import io.ibnuja.hypersonic.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.playback.PlayerState;
 import io.ibnuja.hypersonic.service.api.ConnectionState;
-import io.ibnuja.hypersonic.service.api.SubsonicApi;
 import io.ibnuja.hypersonic.service.audio.Backend;
+import io.ibnuja.hypersonic.service.audio.GstBackend;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -79,6 +79,7 @@ public class Hypersonic {
         } catch (IOException e) {
             log.error("error loading resource:", e);
         } finally {
+            ConnectionState.INSTANCE.disconnect();
             log.info("Application exited and connections closed.");
         }
     }
@@ -89,7 +90,7 @@ public class Hypersonic {
 
         protected PlayerState playerState;
 
-        protected Backend backend;
+        protected final Backend backend = new GstBackend();
 
         @Override
         public void activate() {
@@ -100,25 +101,6 @@ public class Hypersonic {
             } else {
                 log.error("Display.getDefault() returned null inside activate()!");
             }
-            if (playerState == null) {
-                playerState = new PlayerState();
-            }
-
-            if (!ConnectionState.INSTANCE.isConnected()) {
-                ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
-            }
-
-            ConnectionState.INSTANCE.getApi().getRandomSongs(1).thenAccept(
-                    randomSongsResponse -> {
-                        var song = randomSongsResponse.getRandomSongs().getSong().getFirst();
-                        log.debug("Loaded song: {}", song);
-                        playerState.playSong(new Song(song));
-                    }
-            ).exceptionally(throwable -> {
-                log.error("Error loading songs:", throwable);
-                return null;
-            });
-
             MainWindow win;
             List<Window> windows = super.getWindows();
             if (!windows.isEmpty()) {
@@ -165,11 +147,27 @@ public class Hypersonic {
 
             String[] quitAccels = new String[]{"<Ctrl>q"};
             setAccelsForAction("app.quit", quitAccels);
+
+
         }
 
         public Application() {
             setApplicationId("io.ibnuja.Hypersonic");
             setFlags(ApplicationFlags.HANDLES_OPEN);
+            if (!ConnectionState.INSTANCE.isConnected()) {
+                ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
+            }
+            this.playerState = new PlayerState(backend);
+            ConnectionState.INSTANCE.getApi().getRandomSongs(1).thenAccept(
+                    randomSongsResponse -> {
+                        var song = randomSongsResponse.getRandomSongs().getSong().getFirst();
+                        log.debug("Loaded song: {}", song);
+                        playerState.playSong(new Song(song));
+                    }
+            ).exceptionally(throwable -> {
+                log.error("Error loading songs:", throwable);
+                return null;
+            });
         }
     }
 }

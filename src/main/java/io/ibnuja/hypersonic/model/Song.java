@@ -17,7 +17,6 @@ public class Song extends GObject {
     private String album;
     private String albumId;
     private String coverArt;
-    private String uri;
 
     public Song(ru.stersh.subsonic.api.model.Song song) {
         this.id = song.getId();
