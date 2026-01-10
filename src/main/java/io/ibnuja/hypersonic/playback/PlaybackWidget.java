@@ -38,5 +38,6 @@ public class PlaybackWidget extends Box {
 
     public void setup(PlayerState vm) {
         controls.setup(vm);
+        nowPlaying.setup(vm);
     }
 }

@@ -1,5 +1,6 @@
 package io.ibnuja.hypersonic;
 
+import io.ibnuja.hypersonic.model.Song;
 import io.ibnuja.hypersonic.navigation.selection.SelectionToolbarWidget;
 import io.ibnuja.hypersonic.navigation.settings.SettingWindow;
 import io.ibnuja.hypersonic.navigation.sidebar.SidebarRow;
@@ -7,6 +8,9 @@ import io.ibnuja.hypersonic.playback.ControlsWidget;
 import io.ibnuja.hypersonic.playback.InfoWidget;
 import io.ibnuja.hypersonic.playback.PlaybackWidget;
 import io.ibnuja.hypersonic.playback.PlayerState;
+import io.ibnuja.hypersonic.service.api.ConnectionState;
+import io.ibnuja.hypersonic.service.api.SubsonicApi;
+import io.ibnuja.hypersonic.service.audio.Backend;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +89,8 @@ public class Hypersonic {
 
         protected PlayerState playerState;
 
+        protected Backend backend;
+
         @Override
         public void activate() {
             Display display = Display.getDefault();
@@ -97,6 +103,22 @@ public class Hypersonic {
             if (playerState == null) {
                 playerState = new PlayerState();
             }
+
+            if (!ConnectionState.INSTANCE.isConnected()) {
+                ConnectionState.INSTANCE.connect("http://demo.subsonic.org", "guest", "guest");
+            }
+
+            ConnectionState.INSTANCE.getApi().getRandomSongs(1).thenAccept(
+                    randomSongsResponse -> {
+                        var song = randomSongsResponse.getRandomSongs().getSong().getFirst();
+                        log.debug("Loaded song: {}", song);
+                        playerState.playSong(new Song(song));
+                    }
+            ).exceptionally(throwable -> {
+                log.error("Error loading songs:", throwable);
+                return null;
+            });
+
             MainWindow win;
             List<Window> windows = super.getWindows();
             if (!windows.isEmpty()) {
